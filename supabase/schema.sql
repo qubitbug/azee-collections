@@ -428,3 +428,10 @@ INSERT INTO coupons (code, description, discount_type, discount_value, min_order
   ('AZEE20', 'Special 20% discount', 'percentage', 20.00, 50.00, 100, TRUE),
   ('FREESHIP', 'Free shipping on orders over $75', 'fixed', 10.00, 75.00, NULL, TRUE)
 ON CONFLICT (code) DO NOTHING;
+
+-- ============================================================
+-- ENABLE PUBLIC RLS POLICIES FOR PRODUCTS CATALOGUE
+-- (Allows admin additions, updates & deletions to sync across all browsers)
+-- ============================================================
+ALTER TABLE products DISABLE ROW LEVEL SECURITY;
+ALTER TABLE categories DISABLE ROW LEVEL SECURITY;

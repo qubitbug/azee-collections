@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
 import { getStoredCategories, getStoredProducts } from '@/lib/products';
+import { supabase } from '@/lib/supabase';
 import { showToast } from '@/components/Toast';
 
 export default function HomePage() {
@@ -15,8 +16,14 @@ export default function HomePage() {
   const [categoriesList, setCategoriesList] = useState([]);
 
   useEffect(() => {
-    setProductsList(getStoredProducts());
     setCategoriesList(getStoredCategories());
+    supabase.from('products').select('*, categories(name, slug)').then(({ data, error }) => {
+      if (data && data.length > 0) {
+        setProductsList(data);
+      } else {
+        setProductsList(getStoredProducts());
+      }
+    });
   }, []);
 
   // Page loader

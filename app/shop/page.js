@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
 import { getStoredCategories, getStoredProducts } from '@/lib/products';
+import { supabase } from '@/lib/supabase';
 
 function ShopContent() {
   const searchParams = useSearchParams();
@@ -18,8 +19,14 @@ function ShopContent() {
   const [categoriesList, setCategoriesList] = useState([]);
 
   useEffect(() => {
-    setProductsList(getStoredProducts());
     setCategoriesList(getStoredCategories());
+    supabase.from('products').select('*, categories(name, slug)').then(({ data, error }) => {
+      if (data && data.length > 0) {
+        setProductsList(data);
+      } else {
+        setProductsList(getStoredProducts());
+      }
+    });
   }, []);
 
   useEffect(() => {
