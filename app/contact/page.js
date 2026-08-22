@@ -99,7 +99,7 @@ export default function ContactPage() {
                 <div className="contact-info-icon">✉️</div>
                 <div>
                   <h4>Email Assistance</h4>
-                  <p>amal@azeecollections.com</p>
+                  <p>azeebrandoffical@gmail.com</p>
                 </div>
               </div>
               <div className="contact-info-item">
