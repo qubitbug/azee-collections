@@ -401,14 +401,6 @@ export default function AdminDashboardPage() {
             <div style={{ background: 'var(--bg-card)', borderRadius: 'var(--radius)', border: '1px solid var(--border-dark)', padding: '24px', overflowX: 'auto' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px' }}>Product Inventory</h3>
-                <div style={{ display: 'flex', gap: '12px' }}>
-                  <button className="btn-primary btn-sm" onClick={() => setActiveTab('add-product')}>
-                    <span>+ Add Product</span>
-                  </button>
-                  <button className="btn-outline btn-sm" onClick={() => setActiveTab('add-category')}>
-                    + Add Category
-                  </button>
-                </div>
               </div>
 
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
