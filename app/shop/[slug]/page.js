@@ -23,6 +23,7 @@ export default function ProductDetailPage() {
 
   // Customer reviews state
   const [reviewsList, setReviewsList] = useState([]);
+  const [showReviewForm, setShowReviewForm] = useState(false);
   const [newReview, setNewReview] = useState({ name: '', rating: 5, comment: '' });
 
   useEffect(() => {
@@ -72,6 +73,7 @@ export default function ProductDetailPage() {
 
     showToast('Thank you for your review! ⭐');
     setNewReview({ name: '', rating: 5, comment: '' });
+    setShowReviewForm(false);
   };
 
   const relatedProducts = useMemo(() => {
@@ -275,45 +277,57 @@ export default function ProductDetailPage() {
                 )}
                 {activeTab === 'reviews' && (
                   <div>
-                    <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', marginBottom: '16px' }}>Customer Reviews ({reviewsList.length})</h4>
-                    
-                    {/* Add Review Form */}
-                    <form onSubmit={handleAddReview} style={{ background: 'var(--bg-blush)', padding: '20px', borderRadius: '16px', marginBottom: '24px', border: '1px solid var(--border-dark)' }}>
-                      <h5 style={{ fontWeight: 600, marginBottom: '12px' }}>Leave a Customer Review</h5>
-                      <div className="form-row" style={{ gridTemplateColumns: '2fr 1fr', gap: '12px', marginBottom: '12px' }}>
-                        <input
-                          type="text"
-                          required
-                          placeholder="Your Name *"
-                          className="form-input"
-                          value={newReview.name}
-                          onChange={(e) => setNewReview({ ...newReview, name: e.target.value })}
-                        />
-                        <select
-                          className="form-input"
-                          value={newReview.rating}
-                          onChange={(e) => setNewReview({ ...newReview, rating: Number(e.target.value) })}
-                        >
-                          <option value={5}>⭐⭐⭐⭐⭐ (5/5)</option>
-                          <option value={4}>⭐⭐⭐⭐ (4/5)</option>
-                          <option value={3}>⭐⭐⭐ (3/5)</option>
-                          <option value={2}>⭐⭐ (2/5)</option>
-                          <option value={1}>⭐ (1/5)</option>
-                        </select>
-                      </div>
-                      <textarea
-                        rows="3"
-                        required
-                        placeholder="Write your review experience..."
-                        className="form-input"
-                        style={{ marginBottom: '12px' }}
-                        value={newReview.comment}
-                        onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
-                      ></textarea>
-                      <button type="submit" className="btn-primary btn-sm">
-                        <span>Submit Review</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+                      <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', margin: 0 }}>Customer Reviews ({reviewsList.length})</h4>
+                      <button
+                        type="button"
+                        onClick={() => setShowReviewForm(!showReviewForm)}
+                        className="btn-primary btn-sm"
+                        style={{ padding: '8px 16px', fontSize: '12px' }}
+                      >
+                        <span>{showReviewForm ? '✕ Close Form' : '✍️ Write a Review'}</span>
                       </button>
-                    </form>
+                    </div>
+                    
+                    {/* Add Review Form (Shown only when Write a Review button is clicked) */}
+                    {showReviewForm && (
+                      <form onSubmit={handleAddReview} style={{ background: 'var(--bg-blush)', padding: '20px', borderRadius: '16px', marginBottom: '24px', border: '1px solid var(--border-dark)', animation: 'fadeIn 0.3s ease' }}>
+                        <h5 style={{ fontWeight: 600, marginBottom: '12px' }}>Leave a Customer Review</h5>
+                        <div className="form-row" style={{ gridTemplateColumns: '2fr 1fr', gap: '12px', marginBottom: '12px' }}>
+                          <input
+                            type="text"
+                            required
+                            placeholder="Your Name *"
+                            className="form-input"
+                            value={newReview.name}
+                            onChange={(e) => setNewReview({ ...newReview, name: e.target.value })}
+                          />
+                          <select
+                            className="form-input"
+                            value={newReview.rating}
+                            onChange={(e) => setNewReview({ ...newReview, rating: Number(e.target.value) })}
+                          >
+                            <option value={5}>⭐⭐⭐⭐⭐ (5/5)</option>
+                            <option value={4}>⭐⭐⭐⭐ (4/5)</option>
+                            <option value={3}>⭐⭐⭐ (3/5)</option>
+                            <option value={2}>⭐⭐ (2/5)</option>
+                            <option value={1}>⭐ (1/5)</option>
+                          </select>
+                        </div>
+                        <textarea
+                          rows="3"
+                          required
+                          placeholder="Write your review experience..."
+                          className="form-input"
+                          style={{ marginBottom: '12px' }}
+                          value={newReview.comment}
+                          onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+                        ></textarea>
+                        <button type="submit" className="btn-primary btn-sm">
+                          <span>Submit Review</span>
+                        </button>
+                      </form>
+                    )}
 
                     {/* Reviews List */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
