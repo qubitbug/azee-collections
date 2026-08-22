@@ -7,22 +7,22 @@ export default function RefundPolicyPage() {
         <div className="breadcrumb" style={{ justifyContent: 'center' }}>
           <Link href="/">Home</Link>
           <span className="breadcrumb-sep">/</span>
-          <span>Refund Policy</span>
+          <span>Return & Refund Policy</span>
         </div>
-        <h1>Refund & Exchange Policy</h1>
-        <p>Our commitment to customer satisfaction and easy returns.</p>
+        <h1>Return & Refund Policy</h1>
+        <p>Information on custom orders, returns, and damaged item replacements.</p>
       </div>
 
       <div style={{ padding: '60px 0 100px' }}>
         <div className="container" style={{ maxWidth: '800px', lineHeight: 1.8, fontSize: '15px', color: 'var(--text-body)' }}>
-          <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', color: 'var(--text-primary)', marginBottom: '12px' }}>30-Day Money Back Guarantee</h3>
+          <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', color: 'var(--text-primary)', marginBottom: '12px' }}>Custom Crafted Policy — No Returns</h3>
           <p style={{ marginBottom: '20px' }}>
-            If you are not completely satisfied with your purchase, you may return unworn items in original condition and packaging within 30 days of receipt for an exchange or full refund.
+            Because our items are handcrafted and customized as per your desire, <strong>we do not accept returns or exchanges</strong> once an order has been completed. Each piece is custom made specifically according to your preferences, style, and personalization.
           </p>
 
-          <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', color: 'var(--text-primary)', marginBottom: '12px' }}>Damaged or Defective Items</h3>
+          <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', color: 'var(--text-primary)', marginBottom: '12px' }}>Damaged or Incorrect Items</h3>
           <p style={{ marginBottom: '20px' }}>
-            If an item arrives damaged or broken, please notify us within 48 hours of delivery with photos via WhatsApp (+971 50 123 4567) and we will send a free replacement immediately.
+            If your order arrives damaged during transit or if there is a mistake in your order, please notify us within 48 hours of delivery with photos on WhatsApp (<strong>+92 3462910394</strong>) or email (<strong>amal@azeecollections.com</strong>). We will happily send a free replacement to you immediately.
           </p>
         </div>
       </div>

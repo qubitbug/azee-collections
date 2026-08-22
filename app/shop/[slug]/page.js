@@ -231,7 +231,7 @@ export default function ProductDetailPage() {
                 <span style={{ fontSize: '16px' }}>🚚</span> Free shipping over Rs. 5,000
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'var(--text-muted)' }}>
-                <span style={{ fontSize: '16px' }}>🔄</span> 30-day returns
+                <span style={{ fontSize: '16px' }}>✨</span> Custom Crafted
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'var(--text-muted)' }}>
                 <span style={{ fontSize: '16px' }}>🔒</span> Secure payment
@@ -271,8 +271,8 @@ export default function ProductDetailPage() {
                       <li>Nationwide delivery across Pakistan</li>
                     </ul>
                     <br />
-                    <p><strong>Returns:</strong></p>
-                    <p>We accept returns within 30 days of delivery. Items must be unworn and in original packaging.</p>
+                    <p><strong>Returns & Exchange:</strong></p>
+                    <p>Because our items are handcrafted and customized as per your desire, we do not accept returns. If your parcel arrives damaged during transit, please contact us on WhatsApp (+92 3462910394) within 48 hours for a free replacement.</p>
                   </div>
                 )}
                 {activeTab === 'reviews' && (

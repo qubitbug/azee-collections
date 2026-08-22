@@ -29,7 +29,7 @@ export default function FAQPage() {
     },
     {
       q: 'What is your return & exchange policy?',
-      a: 'We offer a 30-day return & exchange policy on unworn items in their original packaging. Please reach out to customer service for hassle-free returns.'
+      a: 'Because our items are handcrafted and customized as per your desire, we do not accept returns. If an item arrives damaged in transit, please contact us on WhatsApp within 48 hours for a replacement.'
     }
   ];
 
