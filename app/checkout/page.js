@@ -92,8 +92,8 @@ export default function CheckoutPage() {
     });
 
     setTimeout(() => {
+      const waUrl = getWhatsAppOrderUrl(items, subtotal, shipping, formData, orderNum);
       if (formData.paymentMethod === 'whatsapp') {
-        const waUrl = getWhatsAppOrderUrl(items, subtotal, shipping);
         window.open(waUrl, '_blank');
       }
       clearCart();
@@ -295,49 +295,6 @@ export default function CheckoutPage() {
                         </div>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Bank Transfer / JazzCash */}
-                  <div
-                    onClick={() => setFormData((p) => ({ ...p, paymentMethod: 'bank' }))}
-                    style={{
-                      padding: '20px',
-                      borderRadius: '12px',
-                      border: `2px solid ${formData.paymentMethod === 'bank' ? 'var(--rose)' : 'var(--border-dark)'}`,
-                      background: formData.paymentMethod === 'bank' ? 'var(--bg-blush)' : 'var(--bg-card)',
-                      marginBottom: '16px',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s',
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="bank"
-                        checked={formData.paymentMethod === 'bank'}
-                        onChange={handleChange}
-                        style={{ accentColor: 'var(--rose)' }}
-                      />
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: 600, fontSize: '15px', color: 'var(--text-primary)' }}>
-                          🏦 Direct Bank Transfer / JazzCash
-                        </div>
-                        <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '2px' }}>
-                          Transfer directly to our Meezan Bank or JazzCash account. Account details provided below.
-                        </div>
-                      </div>
-                    </div>
-                    {formData.paymentMethod === 'bank' && (
-                      <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border)', fontSize: '13px', color: 'var(--text-body)' }}>
-                        <p><strong>Bank & Mobile Account Details:</strong></p>
-                        <p>• <strong>Meezan Bank:</strong> Azee Collections (A/C: 0102-010482910)</p>
-                        <p>• <strong>JazzCash:</strong> 0346-2910394</p>
-                        <p style={{ marginTop: '8px', fontSize: '12px', color: 'var(--text-muted)' }}>
-                          * Send payment transaction screenshot on WhatsApp +92 3462910394 with your Order # for instant dispatch confirmation.
-                        </p>
-                      </div>
-                    )}
                   </div>
 
                   {/* WhatsApp Order Option */}

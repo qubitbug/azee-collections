@@ -90,8 +90,7 @@ export default function Footer() {
             </div>
             <div className="payment-icons">
               <span className="pay-badge">COD</span>
-              <span className="pay-badge">BANK</span>
-              <span className="pay-badge">PAYONEER</span>
+              <span className="pay-badge">WHATSAPP</span>
             </div>
           </div>
         </div>
