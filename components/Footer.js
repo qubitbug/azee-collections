@@ -56,9 +56,7 @@ export default function Footer() {
             <ul>
               <li><Link href="/faq">FAQ</Link></li>
               <li><Link href="/policies/shipping">Shipping & Returns</Link></li>
-              <li><Link href="/account/orders">Track Order</Link></li>
               <li><Link href="/contact">Contact Us</Link></li>
-              <li><Link href="/account">My Account</Link></li>
               <li><Link href="/policies/refund">Refund Policy</Link></li>
             </ul>
           </div>
