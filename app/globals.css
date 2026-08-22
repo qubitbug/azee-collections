@@ -682,42 +682,14 @@ input, select, textarea { font-family: inherit; }
 .footer-tagline { font-size: 12px; letter-spacing: 2px; color: var(--rose-light); margin-bottom: 12px; text-transform: uppercase; }
 .footer-desc { font-size: 13px; color: var(--text-light); line-height: 1.8; margin-bottom: 20px; }
 
-.footer-social-vertical {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 16px;
-}
-.social-link-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 13px;
-  color: var(--text-light);
-  transition: all var(--transition);
-  text-decoration: none;
-}
-.social-link-item:hover {
-  color: var(--rose-light);
-  transform: translateX(4px);
-}
-.social-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+.footer-social, .footer-socials { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+.social-btn {
+  width: 36px; height: 36px; border-radius: 50%;
   border: 1px solid rgba(196,96,122,0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-light);
-  flex-shrink: 0;
-  transition: all var(--transition);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-light); transition: all var(--transition);
 }
-.social-link-item:hover .social-icon {
-  background: var(--rose);
-  border-color: var(--rose);
-  color: white;
-}
+.social-btn:hover { background: var(--rose); border-color: var(--rose); color: white; }
 
 .footer-col h4 { font-family: var(--font-serif); font-size: 15px; font-weight: 400; color: var(--text-on-dark); margin-bottom: 20px; letter-spacing: 1px; }
 .footer-col li { margin-bottom: 10px; }
