@@ -48,7 +48,6 @@ export default function Footer() {
               <li><Link href="/shop?category=necklaces">Necklaces</Link></li>
               <li><Link href="/shop?category=earrings">Earrings</Link></li>
               <li><Link href="/about">Our Story</Link></li>
-              <li><Link href="/account/login">My Account / Sign In</Link></li>
             </ul>
           </div>
 
