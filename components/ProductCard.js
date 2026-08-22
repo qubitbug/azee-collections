@@ -34,7 +34,7 @@ export default function ProductCard({ product }) {
     : tag === 'new' ? '✦ New'
     : tag === 'limited' ? '⚡ Limited' : '';
 
-  const gradient = product.gradient || 'linear-gradient(135deg, #1a0a2e 0%, #2d1854 100%)';
+  const gradient = 'linear-gradient(135deg, #FAF2D3 0%, #FDF8F0 100%)';
 
   return (
     <div className="product-card" data-type={product.categories?.slug || product.category_id}>
@@ -46,7 +46,7 @@ export default function ProductCard({ product }) {
             <img
               src={product.images?.[0] || '/products/beaded_bracelet.png'}
               alt={product.name}
-              style={{ width: '160px', height: '160px', objectFit: 'cover', borderRadius: '12px', filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.3))' }}
+              style={{ width: '160px', height: '160px', objectFit: 'cover', borderRadius: '12px', boxShadow: '0 8px 24px rgba(196, 96, 122, 0.15)' }}
             />
           </div>
           <div className="product-actions">
