@@ -13,9 +13,20 @@ export default function AdminDashboardPage() {
   const [categoriesList, setCategoriesList] = useState([]);
   const [ordersList, setOrdersList] = useState([]);
 
-  // Edit price modal state
+  // Full Edit Product Modal State
   const [editingProduct, setEditingProduct] = useState(null);
-  const [editPriceForm, setEditPriceForm] = useState({ price: '', comparePrice: '' });
+  const [editProductForm, setEditProductForm] = useState({
+    name: '',
+    category: 'bracelets',
+    price: '',
+    comparePrice: '',
+    shortDescription: '',
+    description: '',
+    imageUrl: '',
+    materials: '',
+    stock: 20,
+    isCustomizable: false,
+  });
 
   // New product state (Google Drive link storage supported)
   const [newProduct, setNewProduct] = useState({
@@ -119,50 +130,78 @@ export default function AdminDashboardPage() {
     });
   };
 
-  const handleOpenEditPrice = (product) => {
+  const handleOpenEditProduct = (product) => {
     setEditingProduct(product);
-    setEditPriceForm({
+    setEditProductForm({
+      name: product.name || '',
+      category: product.categories?.slug || product.category_id || 'bracelets',
       price: product.price ? String(product.price) : '',
       comparePrice: product.compare_price ? String(product.compare_price) : '',
+      shortDescription: product.short_description || '',
+      description: product.description || '',
+      imageUrl: product.images?.[0] || '',
+      materials: product.materials || '',
+      stock: product.stock !== undefined ? Number(product.stock) : 20,
+      isCustomizable: Boolean(product.is_customizable),
     });
   };
 
-  const handleSavePrice = (e) => {
+  const handleSaveProduct = (e) => {
     e.preventDefault();
-    if (!editingProduct || !editPriceForm.price) {
-      showToast('Please enter a valid price');
+    if (!editingProduct || !editProductForm.name || !editProductForm.price) {
+      showToast('Please fill in product name and price');
       return;
     }
 
-    const updatedPrice = Number(editPriceForm.price);
-    const updatedCompare = editPriceForm.comparePrice ? Number(editPriceForm.comparePrice) : null;
+    const categoryObj = categoriesList.find(c => c.slug === editProductForm.category) || { name: editProductForm.category.toUpperCase(), slug: editProductForm.category };
+    const convertedImageUrl = convertGoogleDriveUrl(editProductForm.imageUrl) || editProductForm.imageUrl || '/products/beaded_bracelet.png';
 
-    const updatedList = productsList.map(p => {
-      if (p.id === editingProduct.id) {
-        return { ...p, price: updatedPrice, compare_price: updatedCompare };
-      }
-      return p;
-    });
+    const updatedProduct = {
+      ...editingProduct,
+      name: editProductForm.name,
+      slug: editProductForm.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, ''),
+      price: Number(editProductForm.price),
+      compare_price: editProductForm.comparePrice ? Number(editProductForm.comparePrice) : null,
+      images: [convertedImageUrl],
+      materials: editProductForm.materials || 'Beads, Gold-plated components',
+      stock: Number(editProductForm.stock),
+      short_description: editProductForm.shortDescription,
+      description: editProductForm.description || editProductForm.shortDescription,
+      is_customizable: editProductForm.isCustomizable,
+      categories: categoryObj,
+      category_id: editProductForm.category,
+    };
 
+    const updatedList = productsList.map(p => p.id === editingProduct.id || p.slug === editingProduct.slug ? updatedProduct : p);
     setProductsList(updatedList);
 
     if (typeof window !== 'undefined') {
-      // Update localStorage custom products
       const customProds = JSON.parse(localStorage.getItem('azee_custom_products') || '[]');
-      const updatedCustom = customProds.map(p => p.id === editingProduct.id ? { ...p, price: updatedPrice, compare_price: updatedCompare } : p);
+      const updatedCustom = customProds.map(p => p.id === editingProduct.id || p.slug === editingProduct.slug ? updatedProduct : p);
       localStorage.setItem('azee_custom_products', JSON.stringify(updatedCustom));
     }
 
     // Sync update to Supabase
     supabase
       .from('products')
-      .update({ price: updatedPrice, compare_price: updatedCompare })
+      .update({
+        name: updatedProduct.name,
+        slug: updatedProduct.slug,
+        price: updatedProduct.price,
+        compare_price: updatedProduct.compare_price,
+        images: updatedProduct.images,
+        materials: updatedProduct.materials,
+        stock: updatedProduct.stock,
+        short_description: updatedProduct.short_description,
+        description: updatedProduct.description,
+        is_customizable: updatedProduct.is_customizable,
+      })
       .or(`id.eq.${editingProduct.id},slug.eq.${editingProduct.slug}`)
       .then(({ error }) => {
-        if (error) console.log('Supabase update price note:', error.message);
+        if (error) console.log('Supabase update product note:', error.message);
       });
 
-    showToast(`Price updated for "${editingProduct.name}"! 🏷️`);
+    showToast(`Updated "${updatedProduct.name}" details successfully! ✏️`);
     setEditingProduct(null);
   };
 
@@ -350,14 +389,14 @@ export default function AdminDashboardPage() {
                             View Live ↗
                           </Link>
                           <button
-                            onClick={() => handleOpenEditPrice(p)}
+                            onClick={() => handleOpenEditProduct(p)}
                             style={{
-                              padding: '4px 10px', fontSize: '11px', borderRadius: '20px',
-                              background: 'rgba(201,169,110,0.15)', color: '#8b6914',
-                              border: '1px solid rgba(201,169,110,0.3)', cursor: 'pointer', fontWeight: 600
+                              padding: '4px 12px', fontSize: '11px', borderRadius: '20px',
+                              background: 'rgba(201,169,110,0.18)', color: '#8b6914',
+                              border: '1px solid rgba(201,169,110,0.4)', cursor: 'pointer', fontWeight: 600
                             }}
                           >
-                            ✏️ Edit Price
+                            ✏️ Edit Product
                           </button>
                           <button
                             onClick={() => handleDeleteProduct(p)}
@@ -376,54 +415,138 @@ export default function AdminDashboardPage() {
                 </tbody>
               </table>
 
-              {/* Edit Price Modal */}
+              {/* Full Edit Product Modal */}
               {editingProduct && (
                 <div style={{
                   position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                  background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+                  background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: '20px'
                 }}>
                   <div style={{
                     background: 'var(--bg-card)', borderRadius: '20px', padding: '32px',
-                    width: '100%', maxWidth: '440px', border: '1px solid var(--border-dark)',
-                    boxShadow: '0 20px 50px rgba(0,0,0,0.3)'
+                    width: '100%', maxWidth: '640px', maxHeight: '90vh', overflowY: 'auto',
+                    border: '1px solid var(--border-dark)', boxShadow: '0 24px 80px rgba(0,0,0,0.35)'
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                      <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px' }}>Update Product Price</h4>
-                      <button onClick={() => setEditingProduct(null)} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: 'var(--text-muted)' }}>✕</button>
+                      <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '22px' }}>✏️ Edit Product: {editingProduct.name}</h4>
+                      <button onClick={() => setEditingProduct(null)} style={{ background: 'none', border: 'none', fontSize: '22px', cursor: 'pointer', color: 'var(--text-muted)' }}>✕</button>
                     </div>
 
-                    <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '20px' }}>
-                      Updating price for <strong>{editingProduct.name}</strong>
-                    </p>
-
-                    <form onSubmit={handleSavePrice}>
+                    <form onSubmit={handleSaveProduct}>
                       <div className="form-group" style={{ marginBottom: '16px' }}>
-                        <label className="form-label">New Price (Rs.) *</label>
+                        <label className="form-label">Product Name *</label>
                         <input
-                          type="number"
+                          type="text"
                           required
                           className="form-input"
-                          value={editPriceForm.price}
-                          onChange={(e) => setEditPriceForm({ ...editPriceForm, price: e.target.value })}
-                          placeholder="e.g. 1500"
+                          value={editProductForm.name}
+                          onChange={(e) => setEditProductForm({ ...editProductForm, name: e.target.value })}
+                        />
+                      </div>
+
+                      <div className="form-row" style={{ gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                        <div className="form-group">
+                          <label className="form-label">Category *</label>
+                          <select
+                            className="form-input"
+                            value={editProductForm.category}
+                            onChange={(e) => setEditProductForm({ ...editProductForm, category: e.target.value })}
+                          >
+                            {categoriesList.map(c => (
+                              <option key={c.id || c.slug} value={c.slug}>{c.name}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label">Price (Rs.) *</label>
+                          <input
+                            type="number"
+                            required
+                            className="form-input"
+                            value={editProductForm.price}
+                            onChange={(e) => setEditProductForm({ ...editProductForm, price: e.target.value })}
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label">Compare Price (Rs.)</label>
+                          <input
+                            type="number"
+                            className="form-input"
+                            value={editProductForm.comparePrice}
+                            onChange={(e) => setEditProductForm({ ...editProductForm, comparePrice: e.target.value })}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="form-row" style={{ gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                        <div className="form-group">
+                          <label className="form-label">Stock Units</label>
+                          <input
+                            type="number"
+                            className="form-input"
+                            value={editProductForm.stock}
+                            onChange={(e) => setEditProductForm({ ...editProductForm, stock: e.target.value })}
+                          />
+                        </div>
+                        <div className="form-group" style={{ display: 'flex', alignItems: 'center', marginTop: '24px' }}>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
+                            <input
+                              type="checkbox"
+                              checked={editProductForm.isCustomizable}
+                              onChange={(e) => setEditProductForm({ ...editProductForm, isCustomizable: e.target.checked })}
+                              style={{ width: '18px', height: '18px', accentColor: 'var(--rose)' }}
+                            />
+                            <span>✨ Allow Customization</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      <div className="form-group" style={{ marginBottom: '16px' }}>
+                        <label className="form-label">Image URL / Google Drive Link</label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          value={editProductForm.imageUrl}
+                          onChange={(e) => setEditProductForm({ ...editProductForm, imageUrl: e.target.value })}
+                          placeholder="https://drive.google.com/..."
+                        />
+                      </div>
+
+                      <div className="form-group" style={{ marginBottom: '16px' }}>
+                        <label className="form-label">Materials & Craftsmanship</label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          value={editProductForm.materials}
+                          onChange={(e) => setEditProductForm({ ...editProductForm, materials: e.target.value })}
+                        />
+                      </div>
+
+                      <div className="form-group" style={{ marginBottom: '16px' }}>
+                        <label className="form-label">Short Tagline</label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          value={editProductForm.shortDescription}
+                          onChange={(e) => setEditProductForm({ ...editProductForm, shortDescription: e.target.value })}
                         />
                       </div>
 
                       <div className="form-group" style={{ marginBottom: '24px' }}>
-                        <label className="form-label">Original / Compare Price (Optional Rs.)</label>
-                        <input
-                          type="number"
+                        <label className="form-label">Full Description</label>
+                        <textarea
+                          rows="3"
                           className="form-input"
-                          value={editPriceForm.comparePrice}
-                          onChange={(e) => setEditPriceForm({ ...editPriceForm, comparePrice: e.target.value })}
-                          placeholder="e.g. 2000"
-                        />
+                          value={editProductForm.description}
+                          onChange={(e) => setEditProductForm({ ...editProductForm, description: e.target.value })}
+                        ></textarea>
                       </div>
 
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                         <button type="button" className="btn-ghost" onClick={() => setEditingProduct(null)}>Cancel</button>
-                        <button type="submit" className="btn-primary">Save Price</button>
+                        <button type="submit" className="btn-primary" style={{ justifyContent: 'center' }}>
+                          <span>Save Product Changes</span>
+                        </button>
                       </div>
                     </form>
                   </div>
