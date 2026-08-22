@@ -50,9 +50,28 @@ export default function AdminDashboardPage() {
     imageUrl: '',
   });
 
+  const formatCategoryDisplay = (product) => {
+    if (product.categories?.name) return product.categories.name;
+    if (product.categories?.slug) return product.categories.slug;
+    
+    const matched = categoriesList.find(c => c.id === product.category_id || c.slug === product.category_id);
+    if (matched) return matched.name;
+
+    if (product.category_id && (product.category_id.includes('-') || product.category_id.length > 20)) {
+      const lowerName = (product.name || '').toLowerCase();
+      if (lowerName.includes('bag')) return 'Handbags';
+      if (lowerName.includes('necklace')) return 'Necklaces';
+      if (lowerName.includes('earring')) return 'Earrings';
+      if (lowerName.includes('ring')) return 'Rings';
+      if (lowerName.includes('tasbih')) return 'Tasbihs';
+      return 'Bracelets';
+    }
+    return product.category_id || 'Bracelets';
+  };
+
   const fetchProductsFromSupabase = async () => {
     try {
-      const { data, error } = await supabase.from('products').select('*');
+      const { data, error } = await supabase.from('products').select('*, categories(id, name, slug)');
       if (data && data.length > 0) {
         setProductsList(data);
         if (typeof window !== 'undefined') {
@@ -396,7 +415,7 @@ export default function AdminDashboardPage() {
                         <img src={p.images?.[0]} alt={p.name} style={{ width: '44px', height: '44px', borderRadius: '8px', objectFit: 'cover' }} />
                         <span style={{ fontWeight: 500 }}>{p.name}</span>
                       </td>
-                      <td style={{ padding: '12px', textTransform: 'capitalize' }}>{p.categories?.name || p.categories?.slug || p.category_id}</td>
+                      <td style={{ padding: '12px', textTransform: 'capitalize' }}>{formatCategoryDisplay(p)}</td>
                       <td style={{ padding: '12px', fontWeight: 600, color: 'var(--rose)' }}>{formatCurrency(p.price)}</td>
                       <td style={{ padding: '12px' }}>{p.stock} units</td>
                       <td style={{ padding: '12px' }}>
