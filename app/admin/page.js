@@ -94,7 +94,7 @@ export default function AdminDashboardPage() {
     }
   }, []);
 
-  const handleAddProduct = (e) => {
+  const handleAddProduct = async (e) => {
     e.preventDefault();
     if (!newProduct.name || !newProduct.price) {
       showToast('Please fill in product name and price');
@@ -104,11 +104,13 @@ export default function AdminDashboardPage() {
     const categoryObj = categoriesList.find(c => c.slug === newProduct.category) || { name: newProduct.category.toUpperCase(), slug: newProduct.category };
     const convertedImageUrl = convertGoogleDriveUrl(newProduct.imageUrl) || '/products/beaded_bracelet.png';
 
+    const baseSlug = newProduct.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+    const createdSlug = baseSlug + '-' + Date.now().toString().slice(-4);
+
     const created = {
-      id: Date.now().toString(),
       name: newProduct.name,
-      slug: newProduct.name.toLowerCase().replace(/\s+/g, '-'),
-      description: newProduct.description || newProduct.shortDescription,
+      slug: createdSlug,
+      description: newProduct.description || newProduct.shortDescription || 'Handcrafted jewellery piece',
       short_description: newProduct.shortDescription || 'Handcrafted beaded jewellery piece',
       price: Number(newProduct.price),
       compare_price: newProduct.comparePrice ? Number(newProduct.comparePrice) : null,
@@ -117,6 +119,7 @@ export default function AdminDashboardPage() {
       stock: Number(newProduct.stock),
       is_featured: true,
       is_new: true,
+      is_active: true,
       rating: 5.0,
       review_count: 1,
       tags: ['new'],
@@ -125,16 +128,8 @@ export default function AdminDashboardPage() {
       category_id: newProduct.category,
     };
 
-    const updatedProds = [created, ...productsList];
-    setProductsList(updatedProds);
-
-    if (typeof window !== 'undefined') {
-      const customProds = JSON.parse(localStorage.getItem('azee_custom_products') || '[]');
-      localStorage.setItem('azee_custom_products', JSON.stringify([created, ...customProds]));
-    }
-
-    // Sync to Supabase Cloud
-    supabase.from('products').insert([{
+    // Clean payload matching exact Supabase database table schema
+    const dbPayload = {
       name: created.name,
       slug: created.slug,
       description: created.description,
@@ -144,12 +139,24 @@ export default function AdminDashboardPage() {
       images: created.images,
       materials: created.materials,
       stock: created.stock,
-      is_customizable: created.is_customizable,
-    }]).then(({ error }) => {
-      if (error) console.log('Supabase product insert note:', error.message);
-    });
+      is_featured: true,
+      is_new: true,
+      is_active: true,
+    };
 
-    showToast('New product added to store! ✨');
+    const { data, error } = await supabase.from('products').insert([dbPayload]).select();
+
+    if (error) {
+      console.error('Supabase product insert error:', error);
+      showToast('Database sync note: ' + error.message);
+    } else if (data && data[0]) {
+      showToast('New product saved to database! ✨');
+      await fetchProductsFromSupabase();
+    } else {
+      showToast('New product added to catalogue! ✨');
+      await fetchProductsFromSupabase();
+    }
+
     setActiveTab('products');
     setNewProduct({
       name: '',
@@ -181,20 +188,17 @@ export default function AdminDashboardPage() {
     });
   };
 
-  const handleSaveProduct = (e) => {
+  const handleSaveProduct = async (e) => {
     e.preventDefault();
     if (!editingProduct || !editProductForm.name || !editProductForm.price) {
       showToast('Please fill in product name and price');
       return;
     }
 
-    const categoryObj = categoriesList.find(c => c.slug === editProductForm.category) || { name: editProductForm.category.toUpperCase(), slug: editProductForm.category };
     const convertedImageUrl = convertGoogleDriveUrl(editProductForm.imageUrl) || editProductForm.imageUrl || '/products/beaded_bracelet.png';
 
-    const updatedProduct = {
-      ...editingProduct,
+    const dbUpdatePayload = {
       name: editProductForm.name,
-      slug: editProductForm.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, ''),
       price: Number(editProductForm.price),
       compare_price: editProductForm.comparePrice ? Number(editProductForm.comparePrice) : null,
       images: [convertedImageUrl],
@@ -202,66 +206,39 @@ export default function AdminDashboardPage() {
       stock: Number(editProductForm.stock),
       short_description: editProductForm.shortDescription,
       description: editProductForm.description || editProductForm.shortDescription,
-      is_customizable: editProductForm.isCustomizable,
-      categories: categoryObj,
-      category_id: editProductForm.category,
     };
 
-    const updatedList = productsList.map(p => p.id === editingProduct.id || p.slug === editingProduct.slug ? updatedProduct : p);
-    setProductsList(updatedList);
+    const { error } = await supabase
+      .from('products')
+      .update(dbUpdatePayload)
+      .or(`id.eq.${editingProduct.id},slug.eq.${editingProduct.slug}`);
 
-    if (typeof window !== 'undefined') {
-      const customProds = JSON.parse(localStorage.getItem('azee_custom_products') || '[]');
-      const updatedCustom = customProds.map(p => p.id === editingProduct.id || p.slug === editingProduct.slug ? updatedProduct : p);
-      localStorage.setItem('azee_custom_products', JSON.stringify(updatedCustom));
+    if (error) {
+      console.error('Supabase update product error:', error);
+      showToast('Database update note: ' + error.message);
+    } else {
+      showToast(`Updated "${editProductForm.name}" in database! ✏️`);
+      await fetchProductsFromSupabase();
     }
 
-    // Sync update to Supabase
-    supabase
-      .from('products')
-      .update({
-        name: updatedProduct.name,
-        slug: updatedProduct.slug,
-        price: updatedProduct.price,
-        compare_price: updatedProduct.compare_price,
-        images: updatedProduct.images,
-        materials: updatedProduct.materials,
-        stock: updatedProduct.stock,
-        short_description: updatedProduct.short_description,
-        description: updatedProduct.description,
-        is_customizable: updatedProduct.is_customizable,
-      })
-      .or(`id.eq.${editingProduct.id},slug.eq.${editingProduct.slug}`)
-      .then(({ error }) => {
-        if (error) console.log('Supabase update product note:', error.message);
-      });
-
-    showToast(`Updated "${updatedProduct.name}" details successfully! ✏️`);
     setEditingProduct(null);
   };
 
-  const handleDeleteProduct = (product) => {
+  const handleDeleteProduct = async (product) => {
     if (!confirm(`Are you sure you want to delete "${product.name}"?`)) return;
 
-    const updatedList = productsList.filter(p => p.id !== product.id && p.slug !== product.slug);
-    setProductsList(updatedList);
-
-    if (typeof window !== 'undefined') {
-      const customProds = JSON.parse(localStorage.getItem('azee_custom_products') || '[]');
-      const updatedCustom = customProds.filter(p => p.id !== product.id && p.slug !== product.slug);
-      localStorage.setItem('azee_custom_products', JSON.stringify(updatedCustom));
-    }
-
-    // Sync delete to Supabase
-    supabase
+    const { error } = await supabase
       .from('products')
       .delete()
-      .or(`id.eq.${product.id},slug.eq.${product.slug}`)
-      .then(({ error }) => {
-        if (error) console.log('Supabase delete product note:', error.message);
-      });
+      .or(`id.eq.${product.id},slug.eq.${product.slug}`);
 
-    showToast(`Deleted "${product.name}" from store catalogue.`);
+    if (error) {
+      console.error('Supabase delete error:', error);
+      showToast('Database delete note: ' + error.message);
+    } else {
+      showToast(`Deleted "${product.name}" from database.`);
+      await fetchProductsFromSupabase();
+    }
   };
 
   const handleAddCategory = (e) => {
