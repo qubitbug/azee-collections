@@ -154,10 +154,15 @@ export default function ProductDetailPage() {
             </span>
             <h1 className="detail-title">{product.name}</h1>
 
-            <div className="detail-price-row">
-              <span className="detail-price">{formatCurrency(product.price)}</span>
+            <div className="detail-price" style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
+              <span className="detail-price-main" style={{ fontFamily: 'var(--font-serif)', fontSize: '28px', color: 'var(--rose-deep)', fontWeight: 600 }}>{formatCurrency(product.price)}</span>
               {product.compare_price > product.price && (
-                <span className="detail-compare-price">{formatCurrency(product.compare_price)}</span>
+                <span className="detail-price-original" style={{ fontSize: '16px', color: 'var(--text-light)', textDecoration: 'line-through' }}>{formatCurrency(product.compare_price)}</span>
+              )}
+              {savings > 0 && (
+                <span className="detail-price-save" style={{ background: 'rgba(196,96,122,0.1)', color: 'var(--rose)', fontSize: '12px', padding: '4px 12px', borderRadius: '20px', fontWeight: 600 }}>
+                  {savings}% OFF
+                </span>
               )}
             </div>
 
@@ -202,36 +207,20 @@ export default function ProductDetailPage() {
             )}
 
             {/* Quantity */}
-            <div className="quantity-selector" style={{ marginBottom: '24px' }}>
-              <label className="form-label">Quantity</label>
-              <div className="quantity-controls">
-                <button onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</button>
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)' }}>Quantity</label>
+              <div className="quantity-selector" style={{ width: 'fit-content' }}>
+                <button type="button" onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</button>
                 <span>{quantity}</span>
-                <button onClick={() => setQuantity(quantity + 1)}>+</button>
+                <button type="button" onClick={() => setQuantity(quantity + 1)}>+</button>
               </div>
             </div>
 
             {/* Actions */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '24px' }}>
-              <button className="btn-primary btn-block" onClick={handleAddToCart} style={{ justifyContent: 'center' }}>
+            <div style={{ marginBottom: '24px' }}>
+              <button className="btn-primary btn-block" onClick={handleAddToCart} style={{ justifyContent: 'center', width: '100%', padding: '16px 24px', fontSize: '15px' }}>
                 <span>Add to Cart</span>
               </button>
-              <a
-                href={getWhatsAppSingleProductUrl(product, quantity, customizationText)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-whatsapp btn-block"
-                style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                  padding: '14px 16px',
-                  background: '#25D366', color: 'white',
-                  borderRadius: '40px', fontWeight: 600, fontSize: '13px',
-                  textDecoration: 'none',
-                  boxShadow: '0 4px 16px rgba(37, 211, 102, 0.3)'
-                }}
-              >
-                <span>💬 WhatsApp Order</span>
-              </a>
             </div>
 
             {/* Trust badges */}
