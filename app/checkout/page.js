@@ -297,7 +297,7 @@ export default function CheckoutPage() {
                     </div>
                   </div>
 
-                  {/* Bank Transfer / EasyPaisa */}
+                  {/* Bank Transfer / JazzCash */}
                   <div
                     onClick={() => setFormData((p) => ({ ...p, paymentMethod: 'bank' }))}
                     style={{
@@ -321,59 +321,21 @@ export default function CheckoutPage() {
                       />
                       <div style={{ flex: 1 }}>
                         <div style={{ fontWeight: 600, fontSize: '15px', color: 'var(--text-primary)' }}>
-                          🏦 Direct Bank Transfer / EasyPaisa / JazzCash
+                          🏦 Direct Bank Transfer / JazzCash
                         </div>
                         <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '2px' }}>
-                          Transfer directly to our Meezan Bank or EasyPaisa account. Details sent after order.
+                          Transfer directly to our Meezan Bank or JazzCash account. Account details provided below.
                         </div>
                       </div>
                     </div>
                     {formData.paymentMethod === 'bank' && (
                       <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border)', fontSize: '13px', color: 'var(--text-body)' }}>
-                        <p><strong>Bank Details:</strong></p>
-                        <p>• Meezan Bank — Azee Collections (A/C: 0102-010482910)</p>
-                        <p>• EasyPaisa / JazzCash — 0300-1234567</p>
+                        <p><strong>Bank & Mobile Account Details:</strong></p>
+                        <p>• <strong>Meezan Bank:</strong> Azee Collections (A/C: 0102-010482910)</p>
+                        <p>• <strong>JazzCash:</strong> 0346-2910394</p>
                         <p style={{ marginTop: '8px', fontSize: '12px', color: 'var(--text-muted)' }}>
-                          * Send transaction screenshot on WhatsApp +971 50 123 4567 with your Order # for instant confirmation.
+                          * Send payment transaction screenshot on WhatsApp +92 3462910394 with your Order # for instant dispatch confirmation.
                         </p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Payoneer */}
-                  <div
-                    onClick={() => setFormData((p) => ({ ...p, paymentMethod: 'payoneer' }))}
-                    style={{
-                      padding: '20px',
-                      borderRadius: '12px',
-                      border: `2px solid ${formData.paymentMethod === 'payoneer' ? 'var(--rose)' : 'var(--border-dark)'}`,
-                      background: formData.paymentMethod === 'payoneer' ? 'var(--bg-blush)' : 'var(--bg-card)',
-                      marginBottom: '24px',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s',
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="payoneer"
-                        checked={formData.paymentMethod === 'payoneer'}
-                        onChange={handleChange}
-                        style={{ accentColor: 'var(--rose)' }}
-                      />
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: 600, fontSize: '15px', color: 'var(--text-primary)' }}>
-                          💳 Payoneer Payment Request
-                        </div>
-                        <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '2px' }}>
-                          Pay via Payoneer account or Credit/Debit card through Payoneer payment invoice.
-                        </div>
-                      </div>
-                    </div>
-                    {formData.paymentMethod === 'payoneer' && (
-                      <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border)', fontSize: '13px', color: 'var(--text-body)' }}>
-                        <p>We will email a official Payoneer Payment Request link to <strong>{formData.email}</strong> once your order is confirmed.</p>
                       </div>
                     )}
                   </div>

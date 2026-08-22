@@ -170,26 +170,10 @@ export default function CartPage() {
                   )}
                 </div>
 
-                <div style={{ marginTop: '32px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px' }}>
-                  <Link href="/checkout" className="btn-primary btn-block" style={{ justifyContent: 'center' }}>
+                <div style={{ marginTop: '32px' }}>
+                  <Link href="/checkout" className="btn-primary btn-block">
                     <span>Proceed to Checkout</span>
                   </Link>
-                  <a
-                    href={getWhatsAppOrderUrl(items, subtotal, shipping)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn-whatsapp btn-block"
-                    style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                      padding: '14px 20px',
-                      background: '#25D366', color: 'white',
-                      borderRadius: '40px', fontWeight: 600, fontSize: '13px',
-                      textDecoration: 'none',
-                      boxShadow: '0 4px 16px rgba(37, 211, 102, 0.3)'
-                    }}
-                  >
-                    <span>💬 Order via WhatsApp</span>
-                  </a>
                 </div>
 
                 <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '12px', color: 'var(--text-muted)' }}>

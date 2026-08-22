@@ -13,7 +13,7 @@ function ShopContent() {
   const [category, setCategory] = useState(initialCategory);
   const [sort, setSort] = useState('newest');
   const [search, setSearch] = useState('');
-  const [maxPrice, setMaxPrice] = useState(15000);
+  const [maxPrice, setMaxPrice] = useState(5000);
   const [productsList, setProductsList] = useState([]);
   const [categoriesList, setCategoriesList] = useState([]);
 
@@ -106,8 +106,8 @@ function ShopContent() {
               <div className="sidebar-section">
                 <h3 className="sidebar-title">Price Range</h3>
                 <div className="price-range">
-                  <input type="range" min="500" max="15000" step="500" value={maxPrice} onChange={e => setMaxPrice(Number(e.target.value))} />
-                  <div className="price-labels"><span>Rs. 500</span><span>Rs. {maxPrice.toLocaleString()}</span></div>
+                  <input type="range" min="100" max="5000" step="100" value={maxPrice} onChange={e => setMaxPrice(Number(e.target.value))} />
+                  <div className="price-labels"><span>Rs. 100</span><span>Rs. {maxPrice.toLocaleString()}</span></div>
                 </div>
               </div>
             </aside>

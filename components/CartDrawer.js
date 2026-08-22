@@ -78,27 +78,9 @@ export default function CartDrawer() {
               <p style={{ fontSize: '11px', color: 'var(--text-light)', marginBottom: '16px' }}>
                 Shipping & taxes calculated at checkout
               </p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }}>
-                <Link href="/checkout" className="btn-primary btn-block" onClick={closeCart} style={{ padding: '12px 10px', fontSize: '12px', justifyContent: 'center' }}>
-                  <span>Checkout</span>
-                </Link>
-                <a
-                  href={getWhatsAppOrderUrl(items, subtotal, subtotal >= 5000 ? 0 : 200)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-whatsapp btn-block"
-                  style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-                    padding: '12px 10px',
-                    background: '#25D366', color: 'white',
-                    borderRadius: '40px', fontWeight: 600, fontSize: '12px',
-                    textDecoration: 'none', transition: 'transform 0.2s',
-                    boxShadow: '0 4px 16px rgba(37, 211, 102, 0.3)'
-                  }}
-                >
-                  <span>💬 WhatsApp</span>
-                </a>
-              </div>
+              <Link href="/checkout" className="btn-primary btn-block" onClick={closeCart} style={{ marginBottom: '8px' }}>
+                <span>Checkout — {formatCurrency(subtotal)}</span>
+              </Link>
               <Link href="/cart" className="btn-ghost btn-block" onClick={closeCart}>
                 View Cart
               </Link>

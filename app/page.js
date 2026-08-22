@@ -254,47 +254,26 @@ export default function HomePage() {
           <div className="hero-visual">
             <div className="bottle-showcase">
               <div className="bottle-glow"></div>
-              <svg className="hero-bottle" viewBox="0 0 300 340" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <linearGradient id="beadGrad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style={{stopColor:'#E8A0B4',stopOpacity:1}}/><stop offset="100%" style={{stopColor:'#C4607A',stopOpacity:1}}/></linearGradient>
-                  <linearGradient id="beadGrad2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style={{stopColor:'#c9a96e',stopOpacity:1}}/><stop offset="100%" style={{stopColor:'#8b6914',stopOpacity:1}}/></linearGradient>
-                  <linearGradient id="beadGrad3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style={{stopColor:'#F4D8E0',stopOpacity:1}}/><stop offset="100%" style={{stopColor:'#E8A0B4',stopOpacity:1}}/></linearGradient>
-                  <linearGradient id="chainGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style={{stopColor:'#c9a96e',stopOpacity:1}}/><stop offset="50%" style={{stopColor:'#f0d090',stopOpacity:1}}/><stop offset="100%" style={{stopColor:'#c9a96e',stopOpacity:1}}/></linearGradient>
-                  <radialGradient id="glowGrad" cx="50%" cy="50%" r="50%"><stop offset="0%" style={{stopColor:'#E8A0B4',stopOpacity:0.4}}/><stop offset="100%" style={{stopColor:'#E8A0B4',stopOpacity:0}}/></radialGradient>
-                  <filter id="beadGlow"><feGaussianBlur stdDeviation="2" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-                </defs>
-                <ellipse cx="150" cy="170" rx="120" ry="120" fill="url(#glowGrad)"><animate attributeName="rx" values="110;130;110" dur="4s" repeatCount="indefinite"/><animate attributeName="ry" values="110;130;110" dur="4s" repeatCount="indefinite"/></ellipse>
-                <g transform="translate(150, 165)">
-                  <circle cx="0" cy="0" r="75" fill="none" stroke="url(#chainGrad)" strokeWidth="2" opacity="0.5"/>
-                  {/* Beads */}
-                  <circle cx="0" cy="-75" r="12" fill="url(#beadGrad1)" filter="url(#beadGlow)"><animate attributeName="r" values="12;13;12" dur="2s" repeatCount="indefinite"/></circle>
-                  <circle cx="26" cy="-70" r="10" fill="url(#beadGrad2)"/>
-                  <circle cx="48" cy="-58" r="12" fill="url(#beadGrad3)" filter="url(#beadGlow)"><animate attributeName="r" values="12;13;12" dur="2.5s" repeatCount="indefinite" begin="0.3s"/></circle>
-                  <circle cx="64" cy="-40" r="10" fill="url(#beadGrad2)"/>
-                  <circle cx="72" cy="-18" r="12" fill="url(#beadGrad1)" filter="url(#beadGlow)"><animate attributeName="r" values="12;13;12" dur="2.2s" repeatCount="indefinite" begin="0.6s"/></circle>
-                  <circle cx="74" cy="7" r="10" fill="url(#beadGrad2)"/>
-                  <circle cx="68" cy="30" r="12" fill="url(#beadGrad3)" filter="url(#beadGlow)"><animate attributeName="r" values="12;13;12" dur="2.3s" repeatCount="indefinite" begin="0.9s"/></circle>
-                  <circle cx="56" cy="50" r="10" fill="url(#beadGrad2)"/>
-                  <circle cx="38" cy="64" r="12" fill="url(#beadGrad1)" filter="url(#beadGlow)"><animate attributeName="r" values="12;13;12" dur="2.1s" repeatCount="indefinite" begin="1.2s"/></circle>
-                  <circle cx="14" cy="74" r="10" fill="url(#beadGrad2)"/>
-                  <circle cx="-12" cy="74" r="12" fill="url(#beadGrad3)" filter="url(#beadGlow)"><animate attributeName="r" values="12;13;12" dur="2.4s" repeatCount="indefinite" begin="1.5s"/></circle>
-                  <circle cx="-38" cy="64" r="10" fill="url(#beadGrad2)"/>
-                  <circle cx="-56" cy="50" r="12" fill="url(#beadGrad1)" filter="url(#beadGlow)"><animate attributeName="r" values="12;13;12" dur="2.6s" repeatCount="indefinite" begin="1.8s"/></circle>
-                  <circle cx="-68" cy="30" r="10" fill="url(#beadGrad2)"/>
-                  <circle cx="-74" cy="7" r="12" fill="url(#beadGrad3)" filter="url(#beadGlow)"><animate attributeName="r" values="12;13;12" dur="2s" repeatCount="indefinite" begin="2.1s"/></circle>
-                  <circle cx="-72" cy="-18" r="10" fill="url(#beadGrad2)"/>
-                  <circle cx="-64" cy="-40" r="12" fill="url(#beadGrad1)" filter="url(#beadGlow)"><animate attributeName="r" values="12;13;12" dur="2.3s" repeatCount="indefinite" begin="2.4s"/></circle>
-                  <circle cx="-48" cy="-58" r="10" fill="url(#beadGrad2)"/>
-                  <circle cx="-26" cy="-70" r="12" fill="url(#beadGrad3)" filter="url(#beadGlow)"><animate attributeName="r" values="12;13;12" dur="2.5s" repeatCount="indefinite" begin="2.7s"/></circle>
-                  {/* Dangling */}
-                  <line x1="0" y1="75" x2="0" y2="115" stroke="url(#chainGrad)" strokeWidth="2.5" strokeLinecap="round"><animate attributeName="y2" values="115;120;115" dur="3s" repeatCount="indefinite"/></line>
-                  <circle cx="-8" cy="120" r="6" fill="url(#beadGrad1)"><animate attributeName="cy" values="120;126;120" dur="3s" repeatCount="indefinite"/></circle>
-                  <circle cx="8" cy="125" r="5" fill="url(#beadGrad2)"><animate attributeName="cy" values="125;130;125" dur="3.2s" repeatCount="indefinite" begin="0.3s"/></circle>
-                </g>
-                <rect x="100" y="290" width="100" height="35" rx="4" fill="#FBF0F3" opacity="0.12"/>
-                <text x="150" y="308" textAnchor="middle" fontFamily="serif" fontSize="9" fill="#E8A0B4" fontStyle="italic" opacity="0.9">Azee</text>
-                <text x="150" y="319" textAnchor="middle" fontFamily="serif" fontSize="5" fill="#c9a96e" letterSpacing="3" opacity="0.8">COLLECTIONS</text>
-              </svg>
+              <div className="hero-logo-frame" style={{
+                position: 'relative',
+                width: '260px',
+                height: '260px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, rgba(253, 248, 240, 0.9) 0%, rgba(251, 240, 243, 0.9) 100%)',
+                padding: '24px',
+                boxShadow: '0 20px 60px rgba(196, 96, 122, 0.25), inset 0 0 20px rgba(201, 169, 110, 0.2)',
+                border: '2px solid rgba(201, 169, 110, 0.4)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 1
+              }}>
+                <img
+                  src="/logo.png"
+                  alt="Azee Collections Logo"
+                  style={{ width: '100%', height: '100%', objectFit: 'contain', filter: 'drop-shadow(0 10px 20px rgba(196, 96, 122, 0.3))' }}
+                />
+              </div>
               <div className="bottle-shadow"></div>
               <div className="floating-badge badge-1"><span className="badge-icon">✦</span><span>New Arrival</span></div>
               <div className="floating-badge badge-2"><span className="badge-icon">📿</span><span>Handcrafted</span></div>

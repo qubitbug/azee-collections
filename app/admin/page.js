@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getStoredCategories, getStoredProducts } from '@/lib/products';
 import { supabase } from '@/lib/supabase';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, convertGoogleDriveUrl } from '@/lib/utils';
 import { showToast } from '@/components/Toast';
 
 export default function AdminDashboardPage() {
@@ -12,6 +12,10 @@ export default function AdminDashboardPage() {
   const [productsList, setProductsList] = useState([]);
   const [categoriesList, setCategoriesList] = useState([]);
   const [ordersList, setOrdersList] = useState([]);
+
+  // Edit price modal state
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [editPriceForm, setEditPriceForm] = useState({ price: '', comparePrice: '' });
 
   // New product state (Google Drive link storage supported)
   const [newProduct, setNewProduct] = useState({
@@ -52,6 +56,7 @@ export default function AdminDashboardPage() {
     }
 
     const categoryObj = categoriesList.find(c => c.slug === newProduct.category) || { name: newProduct.category.toUpperCase(), slug: newProduct.category };
+    const convertedImageUrl = convertGoogleDriveUrl(newProduct.imageUrl) || '/products/beaded_bracelet.png';
 
     const created = {
       id: Date.now().toString(),
@@ -61,7 +66,7 @@ export default function AdminDashboardPage() {
       short_description: newProduct.shortDescription || 'Handcrafted beaded jewellery piece',
       price: Number(newProduct.price),
       compare_price: newProduct.comparePrice ? Number(newProduct.comparePrice) : null,
-      images: [newProduct.imageUrl || '/products/beaded_bracelet.png'],
+      images: [convertedImageUrl],
       materials: newProduct.materials || 'Beads, Gold-plated components',
       stock: Number(newProduct.stock),
       is_featured: true,
@@ -112,6 +117,77 @@ export default function AdminDashboardPage() {
       stock: 20,
       isCustomizable: false,
     });
+  };
+
+  const handleOpenEditPrice = (product) => {
+    setEditingProduct(product);
+    setEditPriceForm({
+      price: product.price ? String(product.price) : '',
+      comparePrice: product.compare_price ? String(product.compare_price) : '',
+    });
+  };
+
+  const handleSavePrice = (e) => {
+    e.preventDefault();
+    if (!editingProduct || !editPriceForm.price) {
+      showToast('Please enter a valid price');
+      return;
+    }
+
+    const updatedPrice = Number(editPriceForm.price);
+    const updatedCompare = editPriceForm.comparePrice ? Number(editPriceForm.comparePrice) : null;
+
+    const updatedList = productsList.map(p => {
+      if (p.id === editingProduct.id) {
+        return { ...p, price: updatedPrice, compare_price: updatedCompare };
+      }
+      return p;
+    });
+
+    setProductsList(updatedList);
+
+    if (typeof window !== 'undefined') {
+      // Update localStorage custom products
+      const customProds = JSON.parse(localStorage.getItem('azee_custom_products') || '[]');
+      const updatedCustom = customProds.map(p => p.id === editingProduct.id ? { ...p, price: updatedPrice, compare_price: updatedCompare } : p);
+      localStorage.setItem('azee_custom_products', JSON.stringify(updatedCustom));
+    }
+
+    // Sync update to Supabase
+    supabase
+      .from('products')
+      .update({ price: updatedPrice, compare_price: updatedCompare })
+      .or(`id.eq.${editingProduct.id},slug.eq.${editingProduct.slug}`)
+      .then(({ error }) => {
+        if (error) console.log('Supabase update price note:', error.message);
+      });
+
+    showToast(`Price updated for "${editingProduct.name}"! 🏷️`);
+    setEditingProduct(null);
+  };
+
+  const handleDeleteProduct = (product) => {
+    if (!confirm(`Are you sure you want to delete "${product.name}"?`)) return;
+
+    const updatedList = productsList.filter(p => p.id !== product.id && p.slug !== product.slug);
+    setProductsList(updatedList);
+
+    if (typeof window !== 'undefined') {
+      const customProds = JSON.parse(localStorage.getItem('azee_custom_products') || '[]');
+      const updatedCustom = customProds.filter(p => p.id !== product.id && p.slug !== product.slug);
+      localStorage.setItem('azee_custom_products', JSON.stringify(updatedCustom));
+    }
+
+    // Sync delete to Supabase
+    supabase
+      .from('products')
+      .delete()
+      .or(`id.eq.${product.id},slug.eq.${product.slug}`)
+      .then(({ error }) => {
+        if (error) console.log('Supabase delete product note:', error.message);
+      });
+
+    showToast(`Deleted "${product.name}" from store catalogue.`);
   };
 
   const handleAddCategory = (e) => {
@@ -269,14 +345,90 @@ export default function AdminDashboardPage() {
                       <td style={{ padding: '12px', fontWeight: 600, color: 'var(--rose)' }}>{formatCurrency(p.price)}</td>
                       <td style={{ padding: '12px' }}>{p.stock} units</td>
                       <td style={{ padding: '12px' }}>
-                        <Link href={`/shop/${p.slug}`} target="_blank" style={{ fontSize: '12px', color: 'var(--rose)', textDecoration: 'underline' }}>
-                          View Live ↗
-                        </Link>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <Link href={`/shop/${p.slug}`} target="_blank" style={{ fontSize: '12px', color: 'var(--rose)', textDecoration: 'underline' }}>
+                            View Live ↗
+                          </Link>
+                          <button
+                            onClick={() => handleOpenEditPrice(p)}
+                            style={{
+                              padding: '4px 10px', fontSize: '11px', borderRadius: '20px',
+                              background: 'rgba(201,169,110,0.15)', color: '#8b6914',
+                              border: '1px solid rgba(201,169,110,0.3)', cursor: 'pointer', fontWeight: 600
+                            }}
+                          >
+                            ✏️ Edit Price
+                          </button>
+                          <button
+                            onClick={() => handleDeleteProduct(p)}
+                            style={{
+                              padding: '4px 10px', fontSize: '11px', borderRadius: '20px',
+                              background: 'rgba(217,83,79,0.15)', color: '#d9534f',
+                              border: '1px solid rgba(217,83,79,0.3)', cursor: 'pointer', fontWeight: 600
+                            }}
+                          >
+                            🗑️ Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+
+              {/* Edit Price Modal */}
+              {editingProduct && (
+                <div style={{
+                  position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                  background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: '20px'
+                }}>
+                  <div style={{
+                    background: 'var(--bg-card)', borderRadius: '20px', padding: '32px',
+                    width: '100%', maxWidth: '440px', border: '1px solid var(--border-dark)',
+                    boxShadow: '0 20px 50px rgba(0,0,0,0.3)'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                      <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px' }}>Update Product Price</h4>
+                      <button onClick={() => setEditingProduct(null)} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: 'var(--text-muted)' }}>✕</button>
+                    </div>
+
+                    <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '20px' }}>
+                      Updating price for <strong>{editingProduct.name}</strong>
+                    </p>
+
+                    <form onSubmit={handleSavePrice}>
+                      <div className="form-group" style={{ marginBottom: '16px' }}>
+                        <label className="form-label">New Price (Rs.) *</label>
+                        <input
+                          type="number"
+                          required
+                          className="form-input"
+                          value={editPriceForm.price}
+                          onChange={(e) => setEditPriceForm({ ...editPriceForm, price: e.target.value })}
+                          placeholder="e.g. 1500"
+                        />
+                      </div>
+
+                      <div className="form-group" style={{ marginBottom: '24px' }}>
+                        <label className="form-label">Original / Compare Price (Optional Rs.)</label>
+                        <input
+                          type="number"
+                          className="form-input"
+                          value={editPriceForm.comparePrice}
+                          onChange={(e) => setEditPriceForm({ ...editPriceForm, comparePrice: e.target.value })}
+                          placeholder="e.g. 2000"
+                        />
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                        <button type="button" className="btn-ghost" onClick={() => setEditingProduct(null)}>Cancel</button>
+                        <button type="submit" className="btn-primary">Save Price</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
