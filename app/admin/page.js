@@ -50,8 +50,24 @@ export default function AdminDashboardPage() {
     imageUrl: '',
   });
 
+  const fetchProductsFromSupabase = async () => {
+    try {
+      const { data, error } = await supabase.from('products').select('*');
+      if (data && data.length > 0) {
+        setProductsList(data);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('azee_custom_products', JSON.stringify(data));
+        }
+      } else {
+        setProductsList(getStoredProducts());
+      }
+    } catch {
+      setProductsList(getStoredProducts());
+    }
+  };
+
   useEffect(() => {
-    setProductsList(getStoredProducts());
+    fetchProductsFromSupabase();
     setCategoriesList(getStoredCategories());
     if (typeof window !== 'undefined') {
       const savedOrders = JSON.parse(localStorage.getItem('azee_past_orders') || '[]');
