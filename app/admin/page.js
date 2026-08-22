@@ -85,13 +85,49 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const fetchOrdersFromSupabase = async () => {
+    try {
+      const { data, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+      if (data && data.length > 0) {
+        const formattedOrders = data.map(o => ({
+          id: o.id,
+          orderNumber: o.order_number || o.id.slice(0, 8),
+          customer: {
+            fullName: o.customer_name || o.shipping_name || 'Customer',
+            email: o.customer_email || o.email || '',
+            phone: o.customer_phone || o.shipping_phone || '',
+            address: typeof o.shipping_address === 'object' ? o.shipping_address?.address : o.shipping_address || '',
+            city: typeof o.shipping_address === 'object' ? o.shipping_address?.city : o.shipping_city || '',
+            province: typeof o.shipping_address === 'object' ? o.shipping_address?.state : o.shipping_state || '',
+            notes: o.customer_note || '',
+          },
+          items: Array.isArray(o.items) ? o.items : [],
+          pricing: {
+            subtotal: o.subtotal || o.total_amount || 0,
+            shipping: o.shipping_fee || o.shipping_cost || 0,
+            total: o.total_amount || o.total || 0,
+          },
+          paymentMethod: o.payment_method || 'cod',
+          status: o.status || 'pending',
+          date: o.created_at,
+        }));
+        setOrdersList(formattedOrders);
+      } else if (typeof window !== 'undefined') {
+        const savedOrders = JSON.parse(localStorage.getItem('azee_past_orders') || '[]');
+        setOrdersList(savedOrders);
+      }
+    } catch {
+      if (typeof window !== 'undefined') {
+        const savedOrders = JSON.parse(localStorage.getItem('azee_past_orders') || '[]');
+        setOrdersList(savedOrders);
+      }
+    }
+  };
+
   useEffect(() => {
     fetchProductsFromSupabase();
+    fetchOrdersFromSupabase();
     setCategoriesList(getStoredCategories());
-    if (typeof window !== 'undefined') {
-      const savedOrders = JSON.parse(localStorage.getItem('azee_past_orders') || '[]');
-      setOrdersList(savedOrders);
-    }
   }, []);
 
   const handleAddProduct = async (e) => {
@@ -764,36 +800,149 @@ export default function AdminDashboardPage() {
           {activeTab === 'orders' && (
             <div>
               {ordersList.length === 0 ? (
-                <div style={{ background: 'var(--bg-card)', padding: '40px', borderRadius: '16px', textAlign: 'center' }}>
-                  No customer orders received yet.
+                <div style={{ background: 'var(--bg-card)', padding: '50px', borderRadius: '16px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                  📦 No customer orders received yet.
                 </div>
               ) : (
-                ordersList.map((order, idx) => (
-                  <div key={idx} className="order-card" style={{ marginBottom: '20px' }}>
-                    <div className="order-header">
-                      <div>
-                        <div className="order-number">Order #{order.orderNumber}</div>
-                        <div className="order-date">
-                          Customer: <strong>{order.customer?.fullName}</strong> ({order.customer?.phone}, {order.customer?.city})
+                ordersList.map((order, idx) => {
+                  const customerPhone = order.customer?.phone ? order.customer.phone.replace(/[^\d]/g, '') : '';
+                  const waCustomerUrl = customerPhone
+                    ? `https://wa.me/${customerPhone}?text=${encodeURIComponent(`Hello ${order.customer?.fullName || 'Customer'}! Thank you for ordering from Azee Collections. Regarding your Order #${order.orderNumber}...`)}`
+                    : null;
+
+                  return (
+                    <div key={idx} style={{ background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-dark)', padding: '24px', marginBottom: '24px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+                      {/* Top Order Header Bar */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', paddingBottom: '16px', borderBottom: '1px solid var(--border-dark)' }}>
+                        <div>
+                          <div style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                            Order #{order.orderNumber}
+                          </div>
+                          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                            Placed on {order.date ? new Date(order.date).toLocaleString('en-PK', { dateStyle: 'medium', timeStyle: 'short' }) : 'Recent'}
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <span style={{ fontSize: '12px', fontWeight: 600, padding: '4px 12px', borderRadius: '20px', background: 'var(--bg-blush)', color: 'var(--rose)' }}>
+                            {order.paymentMethod === 'whatsapp' ? '💬 WhatsApp Order' : '💵 Cash on Delivery'}
+                          </span>
+                          <select
+                            value={order.status || 'pending'}
+                            onChange={(e) => handleStatusChange(idx, e.target.value)}
+                            style={{ padding: '6px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, border: '1px solid var(--rose)', background: 'var(--bg-card)', cursor: 'pointer' }}
+                          >
+                            <option value="pending">⏳ Pending</option>
+                            <option value="processing">⚙️ Processing</option>
+                            <option value="shipped">🚚 Shipped</option>
+                            <option value="delivered">✅ Delivered</option>
+                            <option value="cancelled">❌ Cancelled</option>
+                          </select>
                         </div>
                       </div>
-                      <select
-                        value={order.status || 'processing'}
-                        onChange={(e) => handleStatusChange(idx, e.target.value)}
-                        style={{ padding: '6px 12px', borderRadius: '20px', fontSize: '12px', border: '1px solid var(--border)' }}
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="processing">Processing</option>
-                        <option value="shipped">Shipped</option>
-                        <option value="delivered">Delivered</option>
-                      </select>
-                    </div>
 
-                    <div style={{ fontSize: '13px', margin: '12px 0' }}>
-                      <strong>Payment Method:</strong> {order.paymentMethod?.toUpperCase()} | <strong>Total:</strong> {formatCurrency(order.pricing?.total)}
+                      {/* Middle Grid: Customer Details & Shipping Info */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', margin: '20px 0', padding: '16px', background: 'var(--bg-deep)', borderRadius: '12px' }}>
+                        <div>
+                          <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--rose-light)', marginBottom: '8px', fontWeight: 600 }}>
+                            👤 Customer Contact
+                          </div>
+                          <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-on-dark)' }}>
+                            {order.customer?.fullName || 'Guest Customer'}
+                          </div>
+                          <div style={{ fontSize: '13px', color: 'var(--text-light)', marginTop: '4px' }}>
+                            📞 Phone: <strong>{order.customer?.phone || 'N/A'}</strong>
+                          </div>
+                          {order.customer?.email && (
+                            <div style={{ fontSize: '13px', color: 'var(--text-light)', marginTop: '2px' }}>
+                              ✉️ Email: <strong>{order.customer.email}</strong>
+                            </div>
+                          )}
+                          {waCustomerUrl && (
+                            <a href={waCustomerUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, background: '#25D366', color: '#fff', padding: '6px 14px', borderRadius: '20px', marginTop: '10px', textDecoration: 'none' }}>
+                              💬 Message Customer on WhatsApp
+                            </a>
+                          )}
+                        </div>
+
+                        <div>
+                          <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--rose-light)', marginBottom: '8px', fontWeight: 600 }}>
+                            🏠 Shipping Delivery Address
+                          </div>
+                          <div style={{ fontSize: '13px', color: 'var(--text-on-dark)', lineHeight: '1.6' }}>
+                            {order.customer?.address || 'Street address not provided'}<br />
+                            <strong>{order.customer?.city || 'Lahore'}</strong>, {order.customer?.province || 'Punjab'} {order.customer?.postalCode || ''}
+                          </div>
+                          {order.customer?.notes && (
+                            <div style={{ marginTop: '8px', fontSize: '12px', background: 'rgba(255,255,255,0.08)', padding: '8px 12px', borderRadius: '6px', color: '#fff' }}>
+                              📝 <strong>Customer Note:</strong> "{order.customer.notes}"
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Bottom Table: Itemized Order Products */}
+                      <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
+                        <table style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
+                          <thead>
+                            <tr style={{ borderBottom: '1px solid var(--border-dark)', textTransform: 'uppercase', fontSize: '11px', color: 'var(--text-muted)' }}>
+                              <th style={{ padding: '8px', textAlign: 'left' }}>Item</th>
+                              <th style={{ padding: '8px', textAlign: 'center' }}>Qty</th>
+                              <th style={{ padding: '8px', textAlign: 'right' }}>Price</th>
+                              <th style={{ padding: '8px', textAlign: 'right' }}>Line Total</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {order.items && order.items.length > 0 ? (
+                              order.items.map((item, iIndex) => (
+                                <tr key={iIndex} style={{ borderBottom: '1px solid var(--border-dark)' }}>
+                                  <td style={{ padding: '10px 8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    {item.image || item.images?.[0] ? (
+                                      <img src={item.image || item.images?.[0]} alt={item.name} style={{ width: '36px', height: '36px', borderRadius: '6px', objectFit: 'cover' }} />
+                                    ) : null}
+                                    <div>
+                                      <div style={{ fontWeight: 600 }}>{item.name}</div>
+                                      {item.customization && (
+                                        <div style={{ fontSize: '12px', color: 'var(--rose)', fontWeight: 600, marginTop: '2px' }}>
+                                          ✨ Customization: "{item.customization}"
+                                        </div>
+                                      )}
+                                    </div>
+                                  </td>
+                                  <td style={{ padding: '10px 8px', textAlign: 'center' }}>{item.quantity}</td>
+                                  <td style={{ padding: '10px 8px', textAlign: 'right' }}>{formatCurrency(item.price)}</td>
+                                  <td style={{ padding: '10px 8px', textAlign: 'right', fontWeight: 600 }}>{formatCurrency(item.price * item.quantity)}</td>
+                                </tr>
+                              ))
+                            ) : (
+                              <tr>
+                                <td colSpan="4" style={{ padding: '12px', color: 'var(--text-muted)' }}>No item breakdown available.</td>
+                              </tr>
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* Pricing Summary Row */}
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '12px', borderTop: '1px solid var(--border-dark)' }}>
+                        <div style={{ width: '240px', fontSize: '13px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                            <span>Subtotal:</span>
+                            <span>{formatCurrency(order.pricing?.subtotal || order.pricing?.total)}</span>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', color: 'var(--text-muted)' }}>
+                            <span>Delivery Fee:</span>
+                            <span>{order.pricing?.shipping ? formatCurrency(order.pricing.shipping) : 'FREE'}</span>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', fontWeight: 700, color: 'var(--rose)', marginTop: '8px', paddingTop: '8px', borderTop: '1px dashed var(--border)' }}>
+                            <span>Total Amount:</span>
+                            <span>{formatCurrency(order.pricing?.total || 0)}</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           )}
