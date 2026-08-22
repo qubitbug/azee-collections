@@ -256,24 +256,24 @@ export default function HomePage() {
               <div className="bottle-glow"></div>
               <div className="hero-logo-frame" style={{
                 position: 'relative',
-                width: '310px',
-                height: '310px',
+                width: '360px',
+                height: '360px',
                 borderRadius: '50%',
-                background: 'linear-gradient(135deg, #FFFDF7 0%, #FDF4F6 100%)',
-                padding: '12px',
-                boxShadow: '0 24px 70px rgba(196, 96, 122, 0.3), 0 0 40px rgba(201, 169, 110, 0.25)',
-                border: '3px solid rgba(201, 169, 110, 0.5)',
+                background: '#FAF2D3',
+                boxShadow: '0 24px 80px rgba(196, 96, 122, 0.35), 0 0 50px rgba(201, 169, 110, 0.3)',
+                border: '4px solid rgba(201, 169, 110, 0.6)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 zIndex: 1,
                 overflow: 'hidden',
-                animation: 'float 6s ease-in-out infinite'
+                animation: 'float 6s ease-in-out infinite',
+                margin: '0 auto'
               }}>
                 <img
                   src="/logo.png"
-                  alt="Azee Collection Logo"
-                  style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '50%' }}
+                  alt="Azee Collection Official Logo"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
                 />
               </div>
               <div className="bottle-shadow"></div>
