@@ -1,14 +1,22 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
-import { formatCurrency, getWhatsAppOrderUrl } from '@/lib/utils';
+import { formatCurrency } from '@/lib/utils';
 
 export default function CartDrawer() {
+  const router = useRouter();
   const {
     items, isOpen, closeCart, removeItem, updateQuantity,
     subtotal, shipping, itemCount
   } = useCart();
+
+  const handleCheckoutClick = (e) => {
+    e.preventDefault();
+    closeCart();
+    router.push('/checkout');
+  };
 
   const freeShippingThreshold = 5000;
   const freeShippingProgress = Math.min((subtotal / freeShippingThreshold) * 100, 100);
@@ -98,9 +106,13 @@ export default function CartDrawer() {
               <p style={{ fontSize: '11px', color: 'var(--text-light)', marginBottom: '16px' }}>
                 Shipping & taxes calculated at checkout
               </p>
-              <Link href="/checkout" className="btn-primary btn-block" onClick={closeCart} style={{ marginBottom: '8px' }}>
+              <button
+                onClick={handleCheckoutClick}
+                className="btn-primary btn-block"
+                style={{ marginBottom: '8px', cursor: 'pointer', zIndex: 10 }}
+              >
                 <span>Checkout — {formatCurrency(subtotal)}</span>
-              </Link>
+              </button>
               <Link href="/cart" className="btn-ghost btn-block" onClick={closeCart}>
                 View Cart
               </Link>
