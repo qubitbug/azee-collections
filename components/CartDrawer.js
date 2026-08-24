@@ -19,7 +19,27 @@ export default function CartDrawer() {
       <div className={`cart-drawer ${isOpen ? 'open' : ''}`}>
         <div className="cart-drawer-header">
           <h3>Your Cart ({itemCount})</h3>
-          <button onClick={closeCart} style={{ fontSize: '20px', color: 'var(--text-muted)' }}>✕</button>
+          <button
+            onClick={closeCart}
+            aria-label="Close cart"
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              background: 'var(--bg-blush)',
+              color: 'var(--rose-deep)',
+              border: '1px solid var(--border)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '18px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+            }}
+          >
+            ✕
+          </button>
         </div>
 
         {items.length === 0 ? (
