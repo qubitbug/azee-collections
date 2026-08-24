@@ -7,6 +7,7 @@ import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { getStoredProducts } from '@/lib/products';
 import { formatCurrency, getSavingsPercent, getWhatsAppSingleProductUrl } from '@/lib/utils';
+import { supabase } from '@/lib/supabase';
 import ProductCard from '@/components/ProductCard';
 import { showToast } from '@/components/Toast';
 
@@ -16,6 +17,7 @@ export default function ProductDetailPage() {
   const { isInWishlist, toggleWishlist } = useWishlist();
 
   const [allProducts, setAllProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [customizationText, setCustomizationText] = useState('');
   const [activeTab, setActiveTab] = useState('description');
@@ -28,10 +30,16 @@ export default function ProductDetailPage() {
 
   useEffect(() => {
     setAllProducts(getStoredProducts());
+    supabase.from('products').select('*, categories(id, name, slug)').then(({ data, error }) => {
+      if (data && data.length > 0) {
+        setAllProducts(data);
+      }
+      setLoading(false);
+    }).catch(() => setLoading(false));
   }, []);
 
   const product = useMemo(() => {
-    return allProducts.find(p => p.slug === slug);
+    return allProducts.find(p => p.slug === slug || String(p.id) === String(slug));
   }, [allProducts, slug]);
 
   const handleAddToCart = () => {
@@ -89,12 +97,21 @@ export default function ProductDetailPage() {
       .slice(0, 4);
   }, [allProducts, product]);
 
+  if (loading && !product) {
+    return (
+      <div className="not-found" style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ fontSize: '36px', marginBottom: '16px' }}>✨</div>
+        <h2 style={{ fontFamily: 'var(--font-serif)', fontWeight: 400 }}>Loading Product Details...</h2>
+      </div>
+    );
+  }
+
   if (!product) {
     return (
-      <div className="not-found">
-        <h1>404</h1>
+      <div className="not-found" style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '64px', color: 'var(--rose)' }}>404</h1>
         <h2>Product Not Found</h2>
-        <p>The product you're looking for doesn't exist or has been removed.</p>
+        <p style={{ margin: '12px 0 24px', color: 'var(--text-muted)' }}>The product you're looking for doesn't exist or has been removed.</p>
         <Link href="/shop" className="btn-primary"><span>Browse Collection</span></Link>
       </div>
     );
