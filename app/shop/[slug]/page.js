@@ -34,6 +34,12 @@ export default function ProductDetailPage() {
     return allProducts.find(p => p.slug === slug);
   }, [allProducts, slug]);
 
+  const handleAddToCart = () => {
+    if (!product) return;
+    addItem(product, quantity, null, customizationText);
+    showToast(`Added ${quantity}x "${product.name}" to cart! 🛍️`);
+  };
+
   useEffect(() => {
     if (!product) return;
     if (typeof window !== 'undefined') {
@@ -97,11 +103,6 @@ export default function ProductDetailPage() {
   const wishlisted = isInWishlist(product.id);
   const savings = getSavingsPercent(product.price, product.compare_price);
   const images = product.images?.length > 0 ? product.images : ['/products/beaded_bracelet.png'];
-
-  const handleAddToCart = () => {
-    addItem(product, quantity, customizationText);
-    showToast(`Added "${product.name}" to cart! 🛍️`);
-  };
 
   return (
     <div className="product-detail-page">

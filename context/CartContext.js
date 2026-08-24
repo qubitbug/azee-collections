@@ -49,7 +49,6 @@ export function CartProvider({ children }) {
         customization: customization || '',
       }];
     });
-    setIsOpen(true);
   }, []);
 
   const removeItem = useCallback((id, variantId = null, customization = '') => {
