@@ -263,8 +263,8 @@ export default function HomePage() {
               <div className="bottle-glow"></div>
               <div className="hero-logo-frame" style={{
                 position: 'relative',
-                width: '360px',
-                height: '360px',
+                width: 'clamp(220px, 75vw, 360px)',
+                height: 'clamp(220px, 75vw, 360px)',
                 borderRadius: '50%',
                 background: '#FAF2D3',
                 boxShadow: '0 24px 80px rgba(196, 96, 122, 0.35), 0 0 50px rgba(201, 169, 110, 0.3)',
