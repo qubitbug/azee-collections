@@ -92,7 +92,7 @@ export default function ContactPage() {
                 <div className="contact-info-icon">💬</div>
                 <div>
                   <h4>WhatsApp & Phone</h4>
-                  <p>+92 3462910394</p>
+                  <p>+923060802626</p>
                 </div>
               </div>
               <div className="contact-info-item">

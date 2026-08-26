@@ -21,7 +21,7 @@ export default function FAQPage() {
     },
     {
       q: 'Can I order custom personalized name tasbihs or jewellery?',
-      a: 'Yes! We specialize in custom name tasbihs and custom beaded designs. Please contact us on WhatsApp (+971 50 123 4567) or write to us through our Contact page.'
+      a: 'Yes! We specialize in custom name tasbihs and custom beaded designs. Please contact us on WhatsApp (+923060802626) or write to us through our Contact page.'
     },
     {
       q: 'What materials do you use for your jewellery?',

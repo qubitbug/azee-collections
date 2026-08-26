@@ -290,7 +290,7 @@ export default function ProductDetailPage() {
                     </ul>
                     <br />
                     <p><strong>Returns & Exchange:</strong></p>
-                    <p>Because our items are handcrafted and customized as per your desire, we do not accept returns. If your parcel arrives damaged during transit, please contact us on WhatsApp (+92 3462910394) within 48 hours for a free replacement.</p>
+                    <p>Because our items are handcrafted and customized as per your desire, we do not accept returns. If your parcel arrives damaged during transit, please contact us on WhatsApp (+923060802626) within 48 hours for a free replacement.</p>
                   </div>
                 )}
                 {activeTab === 'reviews' && (

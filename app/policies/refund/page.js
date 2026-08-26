@@ -22,7 +22,7 @@ export default function RefundPolicyPage() {
 
           <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', color: 'var(--text-primary)', marginBottom: '12px' }}>Damaged or Incorrect Items</h3>
           <p style={{ marginBottom: '20px' }}>
-            If your order arrives damaged during transit or if there is a mistake in your order, please notify us within 48 hours of delivery with photos on WhatsApp (<strong>+92 3462910394</strong>) or email (<strong>azeebrandoffical@gmail.com</strong>). We will happily send a free replacement to you immediately.
+            If your order arrives damaged during transit or if there is a mistake in your order, please notify us within 48 hours of delivery with photos on WhatsApp (<strong>+923060802626</strong>) or email (<strong>azeebrandoffical@gmail.com</strong>). We will happily send a free replacement to you immediately.
           </p>
         </div>
       </div>
