@@ -1449,7 +1449,7 @@ input, select, textarea { font-family: inherit; }
   /* Testimonials & Steps */
   .steps-grid { flex-direction: column; gap: 16px; }
   .step-connector { transform: rotate(90deg); padding: 4px 0; }
-  .testimonial-card { min-width: 100%; padding: 24px; }
+  .testimonial-card { min-width: 100%; width: 100%; padding: 24px; box-sizing: border-box; }
 
   /* Newsletter & Footer */
   .newsletter-inner { padding: 36px 20px; border-radius: 16px; }
