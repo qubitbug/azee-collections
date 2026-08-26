@@ -311,7 +311,7 @@ export default function ProductDetailPage() {
                     {showReviewForm && (
                       <form onSubmit={handleAddReview} style={{ background: 'var(--bg-blush)', padding: '20px', borderRadius: '16px', marginBottom: '24px', border: '1px solid var(--border-dark)', animation: 'fadeIn 0.3s ease' }}>
                         <h5 style={{ fontWeight: 600, marginBottom: '12px' }}>Leave a Customer Review</h5>
-                        <div className="form-row" style={{ gridTemplateColumns: '2fr 1fr', gap: '12px', marginBottom: '12px' }}>
+                        <div className="form-row" style={{ gap: '12px', marginBottom: '12px' }}>
                           <input
                             type="text"
                             required

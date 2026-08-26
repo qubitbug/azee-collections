@@ -1466,6 +1466,69 @@ input, select, textarea { font-family: inherit; }
 
   .page-header { padding: 90px 0 28px; }
   .page-header h1 { font-size: 28px; }
+
+  /* === Section Padding Reductions === */
+  .categories { padding: 50px 0; }
+  .collection { padding: 50px 0; }
+  .how-it-works { padding: 50px 0; }
+  .testimonials { padding: 50px 0; }
+  .about-banner { padding: 50px 0; }
+  .newsletter { padding: 40px 0; }
+  .section-header { margin-bottom: 32px; }
+
+  /* === Page-Specific Padding === */
+  .shop-page { padding: 80px 0 40px; }
+  .checkout-page { padding: 80px 0 40px; }
+  .account-page { padding: 80px 0 40px; }
+  .faq-page { padding: 80px 0 40px; }
+  .contact-page { padding: 40px 0 40px; }
+
+  /* === Sticky Elements — Disable on Mobile === */
+  .account-sidebar { position: static; }
+  .order-summary-card { position: static; }
+  .shop-sidebar { position: static; }
+  .product-gallery { position: static; }
+
+  /* === About Page Overflow Fixes === */
+  .about-tag { display: none; }
+  .about-visual { overflow: hidden; }
+  .about-circle-deco { display: none; }
+  .about-bottle { width: 180px; }
+
+  /* === Contact Form Card Padding === */
+  .contact-form-card { padding: 20px 16px; }
+  .contact-info-card { padding: 10px 0; }
+
+  /* === Cookie Banner — Stack Vertically === */
+  .cookie-banner {
+    flex-direction: column; padding: 16px;
+    gap: 12px; text-align: center;
+  }
+  .cookie-actions { justify-content: center; }
+
+  /* === Toast — Constrain Width on Mobile === */
+  .toast {
+    left: 16px; right: 16px;
+    max-width: calc(100vw - 32px);
+    bottom: 80px;
+  }
+
+  /* === Footer Padding Reduction === */
+  .footer { padding: 40px 0 0; }
+
+  /* === Order Confirmation Padding === */
+  .order-success { padding: 80px 16px; min-height: 60vh; }
+  .order-success h1 { font-size: 28px; }
+
+  /* === 404 Page Padding === */
+  .not-found { padding: 80px 16px; min-height: 60vh; }
+  .not-found h1 { font-size: 80px; }
+
+  /* === FAQ Question Font Size === */
+  .faq-question { font-size: 15px; }
+
+  /* === Breadcrumb Mobile === */
+  .breadcrumb { font-size: 11px; flex-wrap: wrap; }
 }
 
 @media (min-width: 769px) {
