@@ -435,3 +435,4 @@ ON CONFLICT (code) DO NOTHING;
 -- ============================================================
 ALTER TABLE products DISABLE ROW LEVEL SECURITY;
 ALTER TABLE categories DISABLE ROW LEVEL SECURITY;
+ALTER TABLE orders DISABLE ROW LEVEL SECURITY;
