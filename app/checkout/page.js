@@ -71,22 +71,24 @@ export default function CheckoutPage() {
     }
 
     // Sync order to Supabase Cloud
+    const extraData = JSON.stringify({
+      address: formData.address,
+      city: formData.city,
+      province: formData.province,
+      items: items
+    });
+
     supabase.from('orders').insert([{
       order_number: orderNum,
       user_id: user?.id || null,
-      customer_email: formData.email,
-      customer_name: `${formData.firstName} ${formData.lastName}`,
-      customer_phone: formData.phone,
-      shipping_address: {
-        address: formData.address,
-        city: formData.city,
-        state: formData.state,
-      },
+      email: formData.email,
+      shipping_name: formData.fullName,
+      shipping_phone: formData.phone,
+      shipping_address_line1: extraData,
       payment_method: formData.paymentMethod,
       subtotal: subtotal,
-      shipping_fee: shipping,
-      total_amount: total,
-      items: items,
+      shipping_cost: shipping,
+      total: total,
     }]).then(({ error }) => {
       if (error) console.log('Supabase order insert note:', error.message);
     });

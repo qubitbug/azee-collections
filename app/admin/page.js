@@ -89,28 +89,37 @@ export default function AdminDashboardPage() {
     try {
       const { data, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
       if (data && data.length > 0) {
-        const formattedOrders = data.map(o => ({
-          id: o.id,
-          orderNumber: o.order_number || o.id.slice(0, 8),
-          customer: {
-            fullName: o.customer_name || o.shipping_name || 'Customer',
-            email: o.customer_email || o.email || '',
-            phone: o.customer_phone || o.shipping_phone || '',
-            address: typeof o.shipping_address === 'object' ? o.shipping_address?.address : o.shipping_address || '',
-            city: typeof o.shipping_address === 'object' ? o.shipping_address?.city : o.shipping_city || '',
-            province: typeof o.shipping_address === 'object' ? o.shipping_address?.state : o.shipping_state || '',
-            notes: o.customer_note || '',
-          },
-          items: Array.isArray(o.items) ? o.items : [],
-          pricing: {
-            subtotal: o.subtotal || o.total_amount || 0,
-            shipping: o.shipping_fee || o.shipping_cost || 0,
-            total: o.total_amount || o.total || 0,
-          },
-          paymentMethod: o.payment_method || 'cod',
-          status: o.status || 'pending',
-          date: o.created_at,
-        }));
+        const formattedOrders = data.map(o => {
+          let extra = {};
+          if (o.shipping_address_line1 && typeof o.shipping_address_line1 === 'string' && o.shipping_address_line1.startsWith('{')) {
+            try {
+              extra = JSON.parse(o.shipping_address_line1);
+            } catch (e) {}
+          }
+          
+          return {
+            id: o.id,
+            orderNumber: o.order_number || o.id.slice(0, 8),
+            customer: {
+              fullName: o.customer_name || o.shipping_name || 'Customer',
+              email: o.customer_email || o.email || '',
+              phone: o.customer_phone || o.shipping_phone || '',
+              address: extra.address || (typeof o.shipping_address === 'object' ? o.shipping_address?.address : o.shipping_address) || o.shipping_address_line1 || '',
+              city: extra.city || (typeof o.shipping_address === 'object' ? o.shipping_address?.city : o.shipping_city) || '',
+              province: extra.province || (typeof o.shipping_address === 'object' ? o.shipping_address?.state : o.shipping_state) || '',
+              notes: o.customer_note || '',
+            },
+            items: extra.items || (Array.isArray(o.items) ? o.items : []),
+            pricing: {
+              subtotal: o.subtotal || o.total_amount || 0,
+              shipping: o.shipping_fee || o.shipping_cost || 0,
+              total: o.total_amount || o.total || 0,
+            },
+            paymentMethod: o.payment_method || 'cod',
+            status: o.status || 'pending',
+            date: o.created_at,
+          };
+        });
         setOrdersList(formattedOrders);
       } else if (typeof window !== 'undefined') {
         const savedOrders = JSON.parse(localStorage.getItem('azee_past_orders') || '[]');
