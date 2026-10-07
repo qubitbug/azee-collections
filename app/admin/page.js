@@ -177,10 +177,23 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const fetchCategoriesFromSupabase = async () => {
+    try {
+      const { data, error } = await supabase.from('categories').select('*');
+      if (data && data.length > 0) {
+        setCategoriesList(data);
+      } else {
+        setCategoriesList(getStoredCategories());
+      }
+    } catch {
+      setCategoriesList(getStoredCategories());
+    }
+  };
+
   useEffect(() => {
     fetchProductsFromSupabase();
     fetchOrdersFromSupabase();
-    setCategoriesList(getStoredCategories());
+    fetchCategoriesFromSupabase();
   }, []);
 
   const handleAddProduct = async (e) => {
@@ -231,7 +244,7 @@ export default function AdminDashboardPage() {
       is_featured: true,
       is_new: true,
       is_active: true,
-      category_id: categoryObj.id || null,
+      category_id: (categoryObj.id && String(categoryObj.id).length === 36) ? categoryObj.id : null,
     };
 
     const { data, error } = await supabase.from('products').insert([dbPayload]).select();
@@ -298,7 +311,7 @@ export default function AdminDashboardPage() {
       stock: Number(editProductForm.stock),
       short_description: editProductForm.shortDescription,
       description: editProductForm.description || editProductForm.shortDescription,
-      category_id: categoryObj.id || null,
+      category_id: (categoryObj.id && String(categoryObj.id).length === 36) ? categoryObj.id : null,
     };
 
     const { error } = await supabase
@@ -334,7 +347,7 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handleAddCategory = (e) => {
+  const handleAddCategory = async (e) => {
     e.preventDefault();
     if (!newCategory.name) {
       showToast('Please enter category name');
@@ -344,33 +357,23 @@ export default function AdminDashboardPage() {
     const slug = newCategory.slug || newCategory.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
 
     const createdCategory = {
-      id: Date.now().toString(),
       name: newCategory.name,
       slug,
       description: newCategory.description || 'Handcrafted artisan category',
       image_url: newCategory.imageUrl || '',
-      sort_order: categoriesList.length + 1,
     };
 
-    const updatedCats = [...categoriesList, createdCategory];
-    setCategoriesList(updatedCats);
-
-    if (typeof window !== 'undefined') {
-      const customCats = JSON.parse(localStorage.getItem('azee_custom_categories') || '[]');
-      localStorage.setItem('azee_custom_categories', JSON.stringify([...customCats, createdCategory]));
+    // Sync to Supabase Cloud FIRST
+    const { data, error } = await supabase.from('categories').insert([createdCategory]).select();
+    
+    if (error) {
+      console.log('Supabase category insert note:', error.message);
+      showToast('Database error: ' + error.message, 'error');
+    } else {
+      showToast(`Category "${newCategory.name}" added successfully! 🏷️`);
+      await fetchCategoriesFromSupabase(); // Refetch with real UUIDs!
     }
 
-    // Sync to Supabase Cloud
-    supabase.from('categories').insert([{
-      name: createdCategory.name,
-      slug: createdCategory.slug,
-      description: createdCategory.description,
-      image_url: createdCategory.image_url,
-    }]).then(({ error }) => {
-      if (error) console.log('Supabase category insert note:', error.message);
-    });
-
-    showToast(`Category "${newCategory.name}" added successfully! 🏷️`);
     setActiveTab('products');
     setNewCategory({ name: '', slug: '', description: '', imageUrl: '' });
   };
