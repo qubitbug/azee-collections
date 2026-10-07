@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import imageCompression from 'browser-image-compression';
 import { getStoredCategories, getStoredProducts } from '@/lib/products';
 import { supabase } from '@/lib/supabase';
 import { formatCurrency, convertGoogleDriveUrl } from '@/lib/utils';
@@ -12,6 +13,7 @@ export default function AdminDashboardPage() {
   const [productsList, setProductsList] = useState([]);
   const [categoriesList, setCategoriesList] = useState([]);
   const [ordersList, setOrdersList] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Full Edit Product Modal State
   const [editingProduct, setEditingProduct] = useState(null);
@@ -130,6 +132,48 @@ export default function AdminDashboardPage() {
         const savedOrders = JSON.parse(localStorage.getItem('azee_past_orders') || '[]');
         setOrdersList(savedOrders);
       }
+    }
+  };
+
+  const handleImageUpload = async (e, setter) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
+      showToast('Compressing image...', 'info');
+      
+      const options = {
+        maxSizeMB: 0.25, // 250 KB
+        maxWidthOrHeight: 1200,
+        useWebWorker: true,
+      };
+      
+      const compressedFile = await imageCompression(file, options);
+      showToast('Uploading to database...', 'info');
+
+      const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      const { data, error } = await supabase.storage
+        .from('products')
+        .upload(fileName, compressedFile, {
+          cacheControl: '3600',
+          upsert: false,
+        });
+
+      if (error) throw error;
+
+      const { data: publicUrlData } = supabase.storage
+        .from('products')
+        .getPublicUrl(fileName);
+
+      setter(publicUrlData.publicUrl);
+      showToast('Image uploaded successfully! ✨');
+    } catch (error) {
+      console.error('Upload error:', error);
+      showToast('Upload failed: ' + error.message, 'error');
+    } finally {
+      setIsUploading(false);
+      e.target.value = ''; // Reset input
     }
   };
 
@@ -550,15 +594,36 @@ export default function AdminDashboardPage() {
                         </div>
                       </div>
 
-                      <div className="form-group" style={{ marginBottom: '16px' }}>
-                        <label className="form-label">Image URL / Google Drive Link</label>
-                        <input
-                          type="text"
-                          className="form-input"
-                          value={editProductForm.imageUrl}
-                          onChange={(e) => setEditProductForm({ ...editProductForm, imageUrl: e.target.value })}
-                          placeholder="https://drive.google.com/..."
-                        />
+                      <div className="form-group" style={{ marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <label className="form-label" style={{ marginBottom: 0 }}>Product Image</label>
+                        
+                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                          <label className="btn-secondary" style={{ cursor: isUploading ? 'not-allowed' : 'pointer', opacity: isUploading ? 0.7 : 1 }}>
+                            <span>{isUploading ? 'Uploading...' : 'Upload Image'}</span>
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              style={{ display: 'none' }} 
+                              disabled={isUploading}
+                              onChange={(e) => handleImageUpload(e, (url) => setEditProductForm({ ...editProductForm, imageUrl: url }))}
+                            />
+                          </label>
+                          <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>OR paste link:</span>
+                          <input
+                            type="text"
+                            placeholder="https://..."
+                            value={editProductForm.imageUrl}
+                            onChange={(e) => setEditProductForm({ ...editProductForm, imageUrl: e.target.value })}
+                            className="form-input"
+                            style={{ flex: 1, marginBottom: 0 }}
+                          />
+                        </div>
+
+                        {editProductForm.imageUrl && (
+                          <div style={{ marginTop: '8px' }}>
+                            <img src={convertGoogleDriveUrl(editProductForm.imageUrl) || editProductForm.imageUrl} alt="Preview" style={{ height: '80px', borderRadius: '8px', objectFit: 'cover' }} />
+                          </div>
+                        )}
                       </div>
 
                       <div className="form-group" style={{ marginBottom: '16px' }}>
@@ -682,17 +747,38 @@ export default function AdminDashboardPage() {
                   </label>
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Image URL / Google Drive Shareable Image Link</label>
-                  <input
-                    type="text"
-                    placeholder="https://drive.google.com/... or https://..."
-                    value={newProduct.imageUrl}
-                    onChange={(e) => setNewProduct({ ...newProduct, imageUrl: e.target.value })}
-                    className="form-input"
-                  />
+                <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <label className="form-label" style={{ marginBottom: 0 }}>Product Image *</label>
+                  
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <label className="btn-secondary" style={{ cursor: isUploading ? 'not-allowed' : 'pointer', opacity: isUploading ? 0.7 : 1 }}>
+                      <span>{isUploading ? 'Uploading...' : 'Upload Image'}</span>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        style={{ display: 'none' }} 
+                        disabled={isUploading}
+                        onChange={(e) => handleImageUpload(e, (url) => setNewProduct({ ...newProduct, imageUrl: url }))}
+                      />
+                    </label>
+                    <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>OR paste link:</span>
+                    <input
+                      type="text"
+                      placeholder="https://..."
+                      value={newProduct.imageUrl}
+                      onChange={(e) => setNewProduct({ ...newProduct, imageUrl: e.target.value })}
+                      className="form-input"
+                      style={{ flex: 1, marginBottom: 0 }}
+                    />
+                  </div>
+                  
+                  {newProduct.imageUrl && (
+                    <div style={{ marginTop: '8px' }}>
+                      <img src={convertGoogleDriveUrl(newProduct.imageUrl) || newProduct.imageUrl} alt="Preview" style={{ height: '80px', borderRadius: '8px', objectFit: 'cover' }} />
+                    </div>
+                  )}
                   <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                    Tip: Store images on Google Drive to save hosting storage space.
+                    Uploaded images are automatically compressed to save space in Supabase.
                   </span>
                 </div>
 
