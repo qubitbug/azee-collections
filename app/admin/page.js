@@ -7,6 +7,7 @@ import { getStoredCategories, getStoredProducts } from '@/lib/products';
 import { supabase } from '@/lib/supabase';
 import { formatCurrency, convertGoogleDriveUrl } from '@/lib/utils';
 import { showToast } from '@/components/Toast';
+import ImageCropModal from '@/components/ImageCropModal';
 
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState('products'); // 'products' | 'add-product' | 'add-category' | 'orders'
@@ -14,6 +15,10 @@ export default function AdminDashboardPage() {
   const [categoriesList, setCategoriesList] = useState([]);
   const [ordersList, setOrdersList] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
+  
+  // Cropper State
+  const [cropImageSrc, setCropImageSrc] = useState(null);
+  const [pendingImageSetter, setPendingImageSetter] = useState(null);
 
   // Full Edit Product Modal State
   const [editingProduct, setEditingProduct] = useState(null);
@@ -135,9 +140,19 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handleImageUpload = async (e, setter) => {
+  const handleFileSelectForCrop = (e, setter) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const objectUrl = URL.createObjectURL(file);
+    setCropImageSrc(objectUrl);
+    setPendingImageSetter(() => setter);
+    e.target.value = ''; // reset
+  };
+
+  const executeImageUpload = async (file) => {
+    if (!file || !pendingImageSetter) return;
+    
+    setCropImageSrc(null); // Close modal
 
     try {
       setIsUploading(true);
@@ -166,14 +181,14 @@ export default function AdminDashboardPage() {
         .from('products')
         .getPublicUrl(fileName);
 
-      setter(publicUrlData.publicUrl);
+      pendingImageSetter(publicUrlData.publicUrl);
       showToast('Image uploaded successfully! ✨');
     } catch (error) {
       console.error('Upload error:', error);
       showToast('Upload failed: ' + error.message, 'error');
     } finally {
       setIsUploading(false);
-      e.target.value = ''; // Reset input
+      setPendingImageSetter(null);
     }
   };
 
@@ -627,7 +642,7 @@ export default function AdminDashboardPage() {
                               accept="image/*" 
                               style={{ display: 'none' }} 
                               disabled={isUploading}
-                              onChange={(e) => handleImageUpload(e, (url) => setEditProductForm({ ...editProductForm, imageUrl: url }))}
+                              onChange={(e) => handleFileSelectForCrop(e, (url) => setEditProductForm({ ...editProductForm, imageUrl: url }))}
                             />
                           </label>
                           <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>OR paste link:</span>
@@ -795,7 +810,7 @@ export default function AdminDashboardPage() {
                         accept="image/*" 
                         style={{ display: 'none' }} 
                         disabled={isUploading}
-                        onChange={(e) => handleImageUpload(e, (url) => setNewProduct({ ...newProduct, imageUrl: url }))}
+                        onChange={(e) => handleFileSelectForCrop(e, (url) => setNewProduct({ ...newProduct, imageUrl: url }))}
                       />
                     </label>
                     <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>OR paste link:</span>
@@ -1072,6 +1087,17 @@ export default function AdminDashboardPage() {
           )}
         </div>
       </div>
+
+      {cropImageSrc && (
+        <ImageCropModal 
+          imageSrc={cropImageSrc}
+          onComplete={executeImageUpload}
+          onCancel={() => {
+            setCropImageSrc(null);
+            setPendingImageSetter(null);
+          }}
+        />
+      )}
     </>
   );
 }
