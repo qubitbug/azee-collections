@@ -231,6 +231,7 @@ export default function AdminDashboardPage() {
       is_featured: true,
       is_new: true,
       is_active: true,
+      category_id: categoryObj.id || null,
     };
 
     const { data, error } = await supabase.from('products').insert([dbPayload]).select();
@@ -286,6 +287,8 @@ export default function AdminDashboardPage() {
 
     const convertedImageUrl = convertGoogleDriveUrl(editProductForm.imageUrl) || editProductForm.imageUrl || '/products/beaded_bracelet.png';
 
+    const categoryObj = categoriesList.find(c => c.slug === editProductForm.category) || {};
+
     const dbUpdatePayload = {
       name: editProductForm.name,
       price: Number(editProductForm.price),
@@ -295,6 +298,7 @@ export default function AdminDashboardPage() {
       stock: Number(editProductForm.stock),
       short_description: editProductForm.shortDescription,
       description: editProductForm.description || editProductForm.shortDescription,
+      category_id: categoryObj.id || null,
     };
 
     const { error } = await supabase
