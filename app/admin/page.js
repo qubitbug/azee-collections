@@ -598,7 +598,22 @@ export default function AdminDashboardPage() {
                         <label className="form-label" style={{ marginBottom: 0 }}>Product Image</label>
                         
                         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                          <label className="btn-secondary" style={{ cursor: isUploading ? 'not-allowed' : 'pointer', opacity: isUploading ? 0.7 : 1 }}>
+                          <label style={{ 
+                            background: 'var(--rose, #dbb4b4)', 
+                            color: '#fff', 
+                            padding: '10px 20px', 
+                            borderRadius: '8px', 
+                            cursor: isUploading ? 'not-allowed' : 'pointer', 
+                            opacity: isUploading ? 0.7 : 1,
+                            fontSize: '14px',
+                            fontWeight: '500',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            border: 'none',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                            transition: 'opacity 0.2s'
+                          }}>
                             <span>{isUploading ? 'Uploading...' : 'Upload Image'}</span>
                             <input 
                               type="file" 
@@ -751,7 +766,22 @@ export default function AdminDashboardPage() {
                   <label className="form-label" style={{ marginBottom: 0 }}>Product Image *</label>
                   
                   <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                    <label className="btn-secondary" style={{ cursor: isUploading ? 'not-allowed' : 'pointer', opacity: isUploading ? 0.7 : 1 }}>
+                    <label style={{ 
+                      background: 'var(--rose, #dbb4b4)', 
+                      color: '#fff', 
+                      padding: '10px 20px', 
+                      borderRadius: '8px', 
+                      cursor: isUploading ? 'not-allowed' : 'pointer', 
+                      opacity: isUploading ? 0.7 : 1,
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: 'none',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                      transition: 'opacity 0.2s'
+                    }}>
                       <span>{isUploading ? 'Uploading...' : 'Upload Image'}</span>
                       <input 
                         type="file" 
